@@ -1,6 +1,16 @@
 <?php
 namespace Jwtauth;
 
+/**
+ * Plugin Name: JWT Auth Plugin
+ * Description: The plugin authenticates the user in Wordpress and set him/her role via JWT.
+ * Version: 1.0.0
+ * Author: Andrew Heberle
+ * Author URI: https://gitlab.com/andrewheberle/wp-jwt-auth-plugin/
+ * License: Apache License, Version 2.0
+ * License URI: http://directory.fsf.org/wiki/License:Apache2.0
+ */
+
 require 'vendor/autoload.php';
 require 'includes/jwt-auth-admin.php';
 
