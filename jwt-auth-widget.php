@@ -70,7 +70,7 @@ class JwtAuthSignIn {
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID);
         do_action('wp_login', $user->login, $user);
-        wp_safe_redirect(isset($_GET['redirect_to']) ? $_GET['redirect_to'] : home_url());
+        wp_safe_redirect(isset($_GET['redirect_to']) ? $_GET['redirect_to'] : admin_url());
         exit;
     }
 
