@@ -4,7 +4,7 @@ namespace Jwtauth;
 /**
  * Plugin Name: JWT Auth Plugin
  * Description: The plugin authenticates the user and sets role in Wordpress via JWT.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Andrew Heberle
  * Author URI: https://gitlab.com/andrewheberle/wp-jwt-auth-plugin/
  * License: GPL v3 or later
@@ -117,15 +117,28 @@ class JwtAuthSignIn {
     private function getKey() {
         $jwksUrl = get_option('jwtauth-jwks-url');
         if ($jwksUrl !== "") {
+            // retrieve json from JWKS URL
+            $json = file_get_contents($jwksUrl);
+            if ($json === false) {
+                $this->error = 'JWT Auth Plugin cannot retrieve the specified JWKS URL';
+                return false;
+            }
+            // try to decode json
+            $jwks = json_decode($json, true);
+            if ($jwks === null) {
+                $this->error = 'JWT Auth Plugin cannot decode the JSON retrieved from the JWKS URL';
+                return false;
+            }
+            // parse the JWKS response
             try {
-                $jwks = json_decode(file_get_contents($jwksUrl), true);
                 $key = JWK::parseKeySet($jwks);
             } catch (Exception $e) {
                 $this->error = $e->getMessage();
                 return false;
             }
         } else {
-          $key = get_option('jwtauth-private-secret');
+            // otherwise use shared secret
+            $key = get_option('jwtauth-private-secret');
         }
 
         return $key;
