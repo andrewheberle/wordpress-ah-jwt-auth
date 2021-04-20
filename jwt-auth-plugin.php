@@ -70,7 +70,7 @@ class JwtAuthSignIn {
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID);
         do_action('wp_login', $user->login, $user);
-        wp_safe_redirect(isset($_GET['redirect_to']) ? $_GET['redirect_to'] : admin_url());
+
         exit;
     }
 
@@ -118,13 +118,13 @@ class JwtAuthSignIn {
         $jwksUrl = get_option('jwtauth-jwks-url');
         if ($jwksUrl !== "") {
             // retrieve json from JWKS URL
-            $json = file_get_contents($jwksUrl);
+            $json = @file_get_contents($jwksUrl);
             if ($json === false) {
                 $this->error = 'JWT Auth Plugin cannot retrieve the specified JWKS URL';
                 return false;
             }
             // try to decode json
-            $jwks = json_decode($json, true);
+            $jwks = @json_decode($json, true);
             if ($jwks === null) {
                 $this->error = 'JWT Auth Plugin cannot decode the JSON retrieved from the JWKS URL';
                 return false;

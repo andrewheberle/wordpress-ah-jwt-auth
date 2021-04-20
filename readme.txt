@@ -60,6 +60,10 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
+= 1.1.0 =
+* Plugin no longer redirects to admin URL after JWT login
+* Minor cleanups
+
 = 1.0.1 =
 * Added more error checking
 * First release on WordPress.org
@@ -68,6 +72,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 * First version (not released on WordPress.org).
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Plugin no longer redirects to admin URL after JWT login
 
 = 1.0.1 =
 Better handling or errors.

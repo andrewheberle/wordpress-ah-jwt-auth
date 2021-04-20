@@ -5,7 +5,6 @@ class JwtAuthAdmin
 {
   public function __construct(){
     add_action('admin_init', array($this, 'registerSettingsAction'));
-
     add_action('admin_menu', array($this, 'optionsMenuAction'));
   }
 
