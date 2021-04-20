@@ -18,3 +18,7 @@ This plugin assumes that it can retrieve a valid JWT from a configured HTTP head
   "role": "admin"
 }
 ```
+
+## Credits
+
+This plugin uses code from (https://github.com/datawiza-inc/wordpress-proxy-auth-plugin)[https://github.com/datawiza-inc/wordpress-proxy-auth-plugin] with modifications to make things more generic so they are usable with any provider/proxy that adds the JWT as a HTTP Header.
