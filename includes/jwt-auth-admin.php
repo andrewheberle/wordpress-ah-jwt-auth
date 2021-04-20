@@ -85,8 +85,8 @@ class JwtAuthAdmin
 
     add_settings_field(
       'jwtauth-jwt-header',
-      'JWKS URL',
-      function() { $this->optionsPageTextInputAction('jwtauth-jwt-header', 'text', 'Enter the header that contains the JWT.', 'It is used to retrieve the JWT.'); },
+      'JWT Header',
+      function() { $this->optionsPageTextInputAction('jwtauth-jwt-header', 'text', 'Enter the header that contains the JWT.', 'It is used to retrieve the JWT. The default is "Authorization".'); },
       'jwtauth-sign-in-widget',
       'jwtauth-sign-in-widget-options-section'
     );

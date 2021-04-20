@@ -85,7 +85,7 @@ class JwtAuthSignIn {
     private function getToken() {
         $jwtHeader = $this->getHeader();
         if (!isset($_SERVER[$jwtHeader])) {
-            $this->error = 'Proxy Auth Plugin is enabled, but it does not receive the expected JWT. Please double check your reverse proxy configuration';
+            $this->error = 'JWT Auth Plugin is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration';
             return false;
         }
 
@@ -106,7 +106,7 @@ class JwtAuthSignIn {
         try {
             $payload = JWT::decode($jwt, $key, array('RS256', 'HS256'));
         } catch (SignatureInvalidException $e) {
-            $this->error = 'JWT Auth Plugin cannot verify the JWT. Please double check if your private secret or JWKS URL is configured correctly';
+            $this->error = 'JWT Auth Plugin cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly';
             return false;
         } catch (Exception $e) {
             return false;
@@ -134,7 +134,7 @@ class JwtAuthSignIn {
     private function getHeader() {
         // returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
         // by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_"
-        return 'HTTP_' . str_replace("-", "_", strtoupper(get_option('datawiza-jwt-header')));
+        return 'HTTP_' . str_replace("-", "_", strtoupper(get_option('jwtauth-jwt-header')));
     }
 }
 
