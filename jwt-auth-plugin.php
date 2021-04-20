@@ -3,7 +3,7 @@ namespace Jwtauth;
 
 /**
  * Plugin Name: JWT Auth Plugin
- * Description: The plugin authenticates the user and sets role in Wordpress via JWT.
+ * Description: The plugin authenticates the user and sets role in WordPress via JWT.
  * Version: 1.0.1
  * Author: Andrew Heberle
  * Author URI: https://gitlab.com/andrewheberle/wp-jwt-auth-plugin/
@@ -12,7 +12,7 @@ namespace Jwtauth;
  */
 
 require 'vendor/autoload.php';
-require 'includes/jwt-auth-admin.php';
+require 'includes/jwt-auth-plugin-admin.php';
 
 use Exception;
 use Firebase\JWT\JWT;

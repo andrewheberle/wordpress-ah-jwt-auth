@@ -4,10 +4,8 @@ namespace JwtAuth;
 class JwtAuthAdmin
 {
   public function __construct(){
-    // https://codex.wordpress.org/Creating_Options_Pages
     add_action('admin_init', array($this, 'registerSettingsAction'));
 
-    // https://codex.wordpress.org/Adding_Administration_Menus
     add_action('admin_menu', array($this, 'optionsMenuAction'));
   }
 
