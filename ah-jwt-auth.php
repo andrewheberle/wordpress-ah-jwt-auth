@@ -24,7 +24,7 @@ class AhJwtAuthSignIn {
     public function __construct() {
         $this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
 
-        add_action('admin_notices', array($this, 'ahjwtauth_admin_notice_error'));
+        add_action('admin_notices', array($this, 'ahjwtauth_admin_notice'));
         add_action('init', array($this, 'logUserInWordpress'));
     }
 
@@ -81,10 +81,16 @@ class AhJwtAuthSignIn {
         exit;
     }
 
-    public function ahjwtauth_admin_notice_error() {
-        $class = 'notice notice-error';
+    public function ahjwtauth_admin_notice() {
         if (isset($this->error)) {
+            $class = 'notice notice-error';
             $message = $this->error;
+            printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
+        }
+
+        if (isset($this->warning)) {
+            $class = 'notice notice-warning is-dismissible';
+            $message = $this->warning;
             printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
         }
     }
@@ -92,7 +98,7 @@ class AhJwtAuthSignIn {
     private function getToken() {
         $jwtHeader = $this->getHeader();
         if (!isset($_SERVER[$jwtHeader])) {
-            $this->error = __('AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth');
+            $this->warning = __('AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth');
             return false;
         }
 
@@ -129,7 +135,7 @@ class AhJwtAuthSignIn {
  
             if ($json === false) {
                 $response = wp_remote_retrieve_body(wp_remote_get($jwksUrl));
-                set_transient('ahjwtauth_jwks_json', $response, 60 * 60 );
+                set_transient('ahjwtauth_jwks_json', $response, 60 * 240 );
             }
             if ($json == '') {
                 $this->error = __('AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth');
