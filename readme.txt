@@ -1,10 +1,10 @@
-=== JWT Auth Plugin ===
+=== AH JWT Auth ===
 Contributors: andrewheberle
 Donate link: https://paypal.me/andrewheberle
 Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
-Tested up to: 5.6
-Stable tag: trunk
+Tested up to: 5.7.1
+Stable tag: 1.0.2
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -25,7 +25,7 @@ Verification of the JWT is handled by either:
 
 During the login process if the user does not exist an account will be created with a matching role from the JWT.
 
-If the JWT did not contain a role claim then user is created with the default role.
+If the JWT did not contain a role claim then user is created with the default subscriber role.
 
 == Frequently Asked Questions ==
 
@@ -60,21 +60,20 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
-= 1.1.0 =
-* Plugin no longer redirects to admin URL after JWT login
-* Minor cleanups
+= 1.0.2 =
+* Added internationalisation for strings
+* Changes based on WordPress.org plugin submission feedback
 
 = 1.0.1 =
 * Added more error checking
-* First release on WordPress.org
 
 = 1.0.0 =
 * First version (not released on WordPress.org).
 
 == Upgrade Notice ==
 
-= 1.1.0 =
-Plugin no longer redirects to admin URL after JWT login
+= 1.0.2 =
+Internationalisation for strings
 
 = 1.0.1 =
 Better handling or errors.

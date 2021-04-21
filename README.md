@@ -1,4 +1,4 @@
-# JWT Auth Plugin
+# AH JWT Auth
 
 ## Introduction
 

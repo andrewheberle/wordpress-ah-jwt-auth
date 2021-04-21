@@ -1,7 +1,7 @@
 <?php
-namespace JwtAuth;
+namespace AhJwtAuth;
 
-class JwtAuthAdmin
+class AhJwtAuthAdmin
 {
   public function __construct(){
     add_action('admin_init', array($this, 'registerSettingsAction'));
@@ -10,10 +10,10 @@ class JwtAuthAdmin
 
   public function optionsMenuAction() {
     add_options_page(
-        'JWT Auth Options',
-        'JWT Auth',
+        'AH JWT Auth Options',
+        'AH JWT Auth',
         'manage_options',
-        'jwtauth-sign-in-widget',
+        'ahjwtauth-sign-in-widget',
         array($this, 'optionsPageAction')
     );
   }
@@ -42,50 +42,50 @@ class JwtAuthAdmin
 
   public function registerSettingsAction() {
     add_settings_section(
-      'jwtauth-sign-in-widget-options-section',
+      'ahjwtauth-sign-in-widget-options-section',
       '',
       null,
-      'jwtauth-sign-in-widget'
+      'ahjwtauth-sign-in-widget'
     );
     
-    register_setting('jwtauth-sign-in-widget', 'jwtauth-private-secret', array(
+    register_setting('ahjwtauth-sign-in-widget', 'ahjwtauth-private-secret', array(
       'type' => 'string',
       'show_in_rest' => false,
     ));
 
-    register_setting('jwtauth-sign-in-widget', 'jwtauth-jwks-url', array(
+    register_setting('ahjwtauth-sign-in-widget', 'ahjwtauth-jwks-url', array(
       'type' => 'string',
       'show_in_rest' => true,
     ));
 
-    register_setting('jwtauth-sign-in-widget', 'jwtauth-jwt-header', array(
+    register_setting('ahjwtauth-sign-in-widget', 'ahjwtauth-jwt-header', array(
       'type' => 'string',
       'show_in_rest' => true,
       'default' => 'Authorization',
     ));
 
     add_settings_field(
-        'jwtauth-private-secret',
+        'ahjwtauth-private-secret',
         'JWT Private Secret',
-        function() { $this->optionsPageTextInputAction('jwtauth-private-secret', 'text', 'Copy paste your JWT\'s private secret here. ', 'It is used for verifying the token (use this field or the "JWKS URL", not both).'); },
-        'jwtauth-sign-in-widget',
-        'jwtauth-sign-in-widget-options-section'
+        function() { $this->optionsPageTextInputAction('ahjwtauth-private-secret', 'text', __('Paste your JWT private secret here.', 'ah-jwt-auth'), __('This secret is used for verifying the token (use this field or the "JWKS URL", not both).', 'ah-jwt-auth')); },
+        'ahjwtauth-sign-in-widget',
+        'ahjwtauth-sign-in-widget-options-section'
     );
 
     add_settings_field(
-      'jwtauth-jwks-url',
+      'ahjwtauth-jwks-url',
       'JWKS URL',
-      function() { $this->optionsPageTextInputAction('jwtauth-jwks-url', 'text', 'Enter the JWKS URL to validate the JWT.', 'It is used for verifying the token (use this field or the "JWT Private Secret", not both)'); },
-      'jwtauth-sign-in-widget',
-      'jwtauth-sign-in-widget-options-section'
+      function() { $this->optionsPageTextInputAction('ahjwtauth-jwks-url', 'text', __('Enter the JWKS URL to validate the JWT.', 'ah-jwt-auth'), __('The retreived JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth')); },
+      'ahjwtauth-sign-in-widget',
+      'ahjwtauth-sign-in-widget-options-section'
     );
 
     add_settings_field(
-      'jwtauth-jwt-header',
+      'ahjwtauth-jwt-header',
       'JWT Header',
-      function() { $this->optionsPageTextInputAction('jwtauth-jwt-header', 'text', 'Enter the header that contains the JWT.', 'It is used to retrieve the JWT. The default is "Authorization".'); },
-      'jwtauth-sign-in-widget',
-      'jwtauth-sign-in-widget-options-section'
+      function() { $this->optionsPageTextInputAction('ahjwtauth-jwt-header', 'text', __('Enter the HTTP header that contains the JWT.', 'ah-jwt-auth'), __('The JWT will be retrieved from the specified HTTP header. This defaults to the "Authorization" header.', 'ah-jwt-auth')); },
+      'ahjwtauth-sign-in-widget',
+      'ahjwtauth-sign-in-widget-options-section'
     );
   }
 }

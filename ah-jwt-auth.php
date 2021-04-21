@@ -1,29 +1,30 @@
 <?php
-namespace Jwtauth;
+namespace AhJwtAuth;
 
 /**
- * Plugin Name: JWT Auth Plugin
- * Description: The plugin authenticates the user and sets role in WordPress via JWT.
- * Version: 1.0.1
+ * Plugin Name: AH JWT Auth
+ * Description: This plugin allows sign in to WordPress using a JSON Web Token (JWT) contained in a HTTP Header
+ * Version: 1.0.2
  * Author: Andrew Heberle
- * Author URI: https://gitlab.com/andrewheberle/wp-jwt-auth-plugin/
+ * Text Domain: ah-jwt-auth
+ * Author URI: https://gitlab.com/andrewheberle/ah-jwt-auth/
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 require 'vendor/autoload.php';
-require 'includes/jwt-auth-plugin-admin.php';
+require 'includes/ah-jwt-auth-admin.php';
 
 use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use Firebase\JWT\JWK;
 
-class JwtAuthSignIn {
+class AhJwtAuthSignIn {
     public function __construct() {
-        $this->JwtAuthAdmin = new JwtAuthAdmin();
+        $this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
 
-        add_action('admin_notices', array($this, 'jwtauth_admin_notice_error'));
+        add_action('admin_notices', array($this, 'ahjwtauth_admin_notice_error'));
         add_action('init', array($this, 'logUserInWordpress'));
     }
 
@@ -42,7 +43,7 @@ class JwtAuthSignIn {
 
         // If we cannot extract the user's email from header
         if (!isset($payload->email)) {
-            $this->error = 'JWT Auth Plugin expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration';
+            $this->error = __('AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth');
             return;
         }
         $email = $payload->email;
@@ -71,10 +72,16 @@ class JwtAuthSignIn {
         wp_set_auth_cookie($user->ID);
         do_action('wp_login', $user->login, $user);
 
+        // redirect after login
+        $redirectUrl = home_url();
+        if (current_user_can('manage_options')) {
+            $redirectUrl = admin_url();
+        }
+        wp_safe_redirect(isset($_GET['redirect_to']) ? $_GET['redirect_to'] : $redirectUrl);
         exit;
     }
 
-    public function jwtauth_admin_notice_error() {
+    public function ahjwtauth_admin_notice_error() {
         $class = 'notice notice-error';
         if (isset($this->error)) {
             $message = $this->error;
@@ -85,7 +92,7 @@ class JwtAuthSignIn {
     private function getToken() {
         $jwtHeader = $this->getHeader();
         if (!isset($_SERVER[$jwtHeader])) {
-            $this->error = 'JWT Auth Plugin is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration';
+            $this->error = __('AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth');
             return false;
         }
 
@@ -106,7 +113,7 @@ class JwtAuthSignIn {
         try {
             $payload = JWT::decode($jwt, $key, array('RS256', 'HS256'));
         } catch (SignatureInvalidException $e) {
-            $this->error = 'JWT Auth Plugin cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly';
+            $this->error = __('AH JWT Auth cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth');
             return false;
         } catch (Exception $e) {
             return false;
@@ -115,18 +122,23 @@ class JwtAuthSignIn {
     }
 
     private function getKey() {
-        $jwksUrl = get_option('jwtauth-jwks-url');
+        $jwksUrl = get_option('ahjwtauth-jwks-url');
         if ($jwksUrl !== "") {
-            // retrieve json from JWKS URL
-            $json = @file_get_contents($jwksUrl);
+            // retrieve json from JWKS URL with caching
+            $json = get_transient('ahjwtauth_jwks_json');
+ 
             if ($json === false) {
-                $this->error = 'JWT Auth Plugin cannot retrieve the specified JWKS URL';
+                $response = wp_remote_retrieve_body(wp_remote_get($jwksUrl));
+                set_transient('ahjwtauth_jwks_json', $response, 60 * 60 );
+            }
+            if ($json == '') {
+                $this->error = __('AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth');
                 return false;
             }
             // try to decode json
             $jwks = @json_decode($json, true);
             if ($jwks === null) {
-                $this->error = 'JWT Auth Plugin cannot decode the JSON retrieved from the JWKS URL';
+                $this->error = __('AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth');
                 return false;
             }
             // parse the JWKS response
@@ -138,7 +150,7 @@ class JwtAuthSignIn {
             }
         } else {
             // otherwise use shared secret
-            $key = get_option('jwtauth-private-secret');
+            $key = get_option('ahjwtauth-private-secret');
         }
 
         return $key;
@@ -147,8 +159,8 @@ class JwtAuthSignIn {
     private function getHeader() {
         // returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
         // by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_"
-        return 'HTTP_' . str_replace("-", "_", strtoupper(get_option('jwtauth-jwt-header')));
+        return 'HTTP_' . str_replace("-", "_", strtoupper(get_option('ahjwtauth-jwt-header')));
     }
 }
 
-$jwtAuth = new JwtAuthSignIn();
+$ahJwtAuth = new AhJwtAuthSignIn();
