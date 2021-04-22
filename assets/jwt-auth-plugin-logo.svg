@@ -9,8 +9,8 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    height="96"
    version="1.1"
-   viewBox="0 0 72 96"
-   width="72"
+   viewBox="0 0 96 96"
+   width="96"
    id="svg829"
    sodipodi:docname="jwt-auth-plugin-logo.svg"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
@@ -40,24 +40,28 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="5760"
-     inkscape:window-height="3413"
+     inkscape:window-width="3840"
+     inkscape:window-height="1973"
      id="namedview831"
      showgrid="false"
-     inkscape:zoom="28.178205"
-     inkscape:cx="30.623937"
-     inkscape:cy="48.529696"
+     inkscape:zoom="14.089103"
+     inkscape:cx="-1.6141104"
+     inkscape:cy="43.424712"
      inkscape:window-x="-18"
-     inkscape:window-y="-18"
+     inkscape:window-y="3582"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg829" />
   <g
-     id="g4614">
+     id="g4614"
+     inkscape:export-filename="C:\Users\AndrewHeberle\Documents\WordPress\ah-jwt-auth-svn\assets\icon-256x256.png"
+     inkscape:export-xdpi="256"
+     inkscape:export-ydpi="256"
+     transform="translate(12)">
     <path
        inkscape:connector-curvature="0"
        id="path4610"
        d="M 7.2396378,7.2434601 H 46.312389 L 66.043951,26.975022 V 88.937804 H 7.1331725 L 7.6654989,7.3499253"
-       style="fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1" />
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
        inkscape:export-ydpi="128"
        inkscape:export-xdpi="128"
@@ -69,20 +73,24 @@
   <text
      xml:space="preserve"
      style="font-style:normal;font-weight:normal;font-size:19.36000061px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.484"
-     x="16.030989"
+     x="28.030987"
      y="81.666138"
-     id="text4586"><tspan
+     id="text4586"
+     inkscape:export-filename="C:\Users\AndrewHeberle\Documents\WordPress\ah-jwt-auth-svn\assets\icon-256x256.png"
+     inkscape:export-xdpi="256"
+     inkscape:export-ydpi="256"><tspan
        sodipodi:role="line"
        id="tspan4584"
-       x="16.030989"
+       x="28.030987"
        y="81.666138"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:19.36000061px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.484">JWT</tspan></text>
   <g
-     transform="matrix(15.91937,0,0,15.91937,40.838254,-4591.9243)"
+     transform="matrix(15.91937,0,0,15.91937,52.838253,-4591.9243)"
      id="layer1-1"
      style="fill:#e77500;fill-opacity:1;stroke:#000000;stroke-width:0.08888889;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     inkscape:export-xdpi="128"
-     inkscape:export-ydpi="128">
+     inkscape:export-xdpi="256"
+     inkscape:export-ydpi="256"
+     inkscape:export-filename="C:\Users\AndrewHeberle\Documents\WordPress\ah-jwt-auth-svn\assets\icon-256x256.png">
     <g
        id="g4563"
        transform="matrix(0.25,0,0,0.25,-1.3688952,218.27074)"
