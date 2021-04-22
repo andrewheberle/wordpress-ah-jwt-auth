@@ -33,9 +33,7 @@ If the JWT did not contain a role claim then user is created with the default su
 
 By default the plugin looks for the JWT in the `Authorization` header as follows:
 
-```
-Authorization: Bearer <JWT Here>
-```
+  Authorization: Bearer <JWT Here>
 
 However the token may be retrieved from a configirable HTTP header, for example integration with Cloudflare Access would use
 the `Cf-Access-Jwt-Assertion` header.
@@ -44,12 +42,11 @@ the `Cf-Access-Jwt-Assertion` header.
 
 The JWT must contain at least an `email` claim and may also contain a `role` claim:
 
-```json
-{
-    "email": "admin@example.com",
-    "role": "admin"
-}
-```
+  {
+      "email": "admin@example.com",
+      "role": "admin"
+  }
+
 = What signature algorimths are supported to verify the JWT? =
 
 Currently only the HS256 and RS256 alorithms are supported.
