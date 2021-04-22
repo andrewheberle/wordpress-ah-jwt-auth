@@ -57,6 +57,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
+= 1.0.3 =
+* Initial release on WordPress.org
+
 = 1.0.2 =
 * Added internationalisation for strings
 * Changes based on WordPress.org plugin submission feedback
@@ -65,9 +68,12 @@ Currently only the HS256 and RS256 alorithms are supported.
 * Added more error checking
 
 = 1.0.0 =
-* First version (not released on WordPress.org).
+* First version
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+Initial public release
 
 = 1.0.2 =
 Internationalisation for strings
