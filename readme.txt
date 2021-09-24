@@ -57,10 +57,10 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
-= 1.2.0
+= 1.2.0 =
 * Fix a bug where an invalid JSON response from JWKS URL was cached leading to broken SSO 
 
-= 1.1.0
+= 1.1.0 =
 * Make login process more efficient by skipping JWT verify/login if user is already authenticated 
 
 = 1.0.3 =
