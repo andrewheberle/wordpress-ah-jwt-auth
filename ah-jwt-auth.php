@@ -25,10 +25,15 @@ class AhJwtAuthSignIn {
         $this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
 
         add_action('admin_notices', array($this, 'ahjwtauth_admin_notice'));
-        add_action('init', array($this, 'logUserInWordpress'));
+        add_action('init', array($this, 'ahjwtauth_log_user_in'));
     }
 
-    public function logUserInWordpress() {
+    public function ahjwtauth_log_user_in() {
+        // if user is already logged in just return immediately
+        if (is_user_logged_in()) {
+            return;
+        }
+
         // get jwt
         $jwt = $this->getToken();
         if ($jwt === false) {

@@ -3,8 +3,8 @@ Contributors: andrewheberle
 Donate link: https://paypal.me/andrewheberle
 Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
-Tested up to: 5.7.1
-Stable tag: 1.0.3
+Tested up to: 5.8.0
+Stable tag: 1.1.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -33,19 +33,19 @@ If the JWT did not contain a role claim then user is created with the default su
 
 By default the plugin looks for the JWT in the `Authorization` header as follows:
 
-  Authorization: Bearer <JWT Here>
+    Authorization: Bearer <JWT Here>
 
-However the token may be retrieved from a configirable HTTP header, for example integration with Cloudflare Access would use
+However the token may be retrieved from a configurable HTTP header, for example integration with Cloudflare Access would use
 the `Cf-Access-Jwt-Assertion` header.
 
 = What should the JWT contain? =
 
 The JWT must contain at least an `email` claim and may also contain a `role` claim:
 
-  {
-      "email": "admin@example.com",
-      "role": "admin"
-  }
+    {
+        "email": "admin@example.com",
+        "role": "admin"
+    }
 
 = What signature algorimths are supported to verify the JWT? =
 
