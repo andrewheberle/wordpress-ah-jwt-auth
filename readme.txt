@@ -3,8 +3,8 @@ Contributors: andrewheberle
 Donate link: https://paypal.me/andrewheberle
 Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
-Tested up to: 5.8.0
-Stable tag: 1.1.0
+Tested up to: 5.8.1
+Stable tag: 1.2.0
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -56,6 +56,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 1. This example shows a configuration with a WordPress install behind Cloudflare Access for SSO via JWT
 
 == Changelog ==
+
+= 1.2.0
+* Fix a bug where an invalid JSON response from JWKS URL was cached leading to broken SSO 
 
 = 1.1.0
 * Make login process more efficient by skipping JWT verify/login if user is already authenticated 

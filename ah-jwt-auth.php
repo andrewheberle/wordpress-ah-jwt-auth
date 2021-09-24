@@ -139,8 +139,13 @@ class AhJwtAuthSignIn {
             $json = get_transient('ahjwtauth_jwks_json');
  
             if ($json === false) {
-                $response = wp_remote_retrieve_body(wp_remote_get($jwksUrl));
-                set_transient('ahjwtauth_jwks_json', $response, 60 * 240 );
+                $response = wp_remote_get($jwksUrl);
+                if (is_wp_error($response)) {
+                    $this->error = __('AH JWT Auth: error retrieving the JWKS URL: ' . $response->get_error_message(), 'ah-jwt-auth');
+                    return false;
+                }
+
+                $json = wp_remote_retrieve_body($response);
             }
             if ($json == '') {
                 $this->error = __('AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth');
@@ -152,6 +157,9 @@ class AhJwtAuthSignIn {
                 $this->error = __('AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth');
                 return false;
             }
+            // cache json for future
+            set_transient('ahjwtauth_jwks_json', $json, 60 * 240 );
+            
             // parse the JWKS response
             try {
                 $key = JWK::parseKeySet($jwks);
