@@ -57,6 +57,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
+= 1.1.0
+* Make login process more efficient by skipping JWT verify/login if user is already authenticated 
+
 = 1.0.3 =
 * Initial release on WordPress.org
 
