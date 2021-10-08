@@ -7,7 +7,7 @@ namespace AhJwtAuth;
  * Version: 1.3.0
  * Author: Andrew Heberle
  * Text Domain: ah-jwt-auth
- * Author URI: https://gitlab.com/andrewheberle/ah-jwt-auth/
+ * Author URI: https://github.com/andrewheberle/Wordpress-ah-jwt-auth/
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -25,7 +25,7 @@ class AhJwtAuthSignIn {
         $this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
 
         add_action('admin_notices', array($this, 'ahjwtauth_admin_notice'));
-        add_action('init', array($this, 'ahjwtauth_log_user_in'));
+        add_action('login_head', array($this, 'ahjwtauth_log_user_in'));
     }
 
     public function ahjwtauth_log_user_in() {
