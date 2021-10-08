@@ -53,12 +53,6 @@ class AhJwtAuthSignIn {
         }
         $email = $payload->email;
 
-        // If the user has logged in
-        $current_user_id = wp_get_current_user()->ID;
-        if ($current_user_id) {
-            return;
-        }
-
         $user = get_user_by('email', $email);
 
         if (!$user) {
