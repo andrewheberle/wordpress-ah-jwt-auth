@@ -4,7 +4,7 @@ namespace AhJwtAuth;
 /**
  * Plugin Name: AH JWT Auth
  * Description: This plugin allows sign in to WordPress using a JSON Web Token (JWT) contained in a HTTP Header
- * Version: 1.2.2
+ * Version: 1.3.0
  * Author: Andrew Heberle
  * Text Domain: ah-jwt-auth
  * Author URI: https://gitlab.com/andrewheberle/ah-jwt-auth/
@@ -65,9 +65,14 @@ class AhJwtAuthSignIn {
             $random_password = wp_generate_password($length = 64, $include_standard_special_chars = false);
             $user_id = wp_create_user($email, $random_password, $email);
             $user = get_user_by('id', $user_id);
+
+            // set role on creation to configured default if not included in jwt
+            if (!isset($payload->role)) {
+              $user->set_role(get_option('ahjwtauth-user-role', 'subscriber'));
+            }
         }
-        // If we can extract the user's role from header, then set the role
-        // Otherwise set it to default role: subscriber
+
+        // If we can extract the user's role from the JWT, then set the role, otherwise leave as-is
         if (isset($payload->role)) {
             $user->set_role(strtolower($payload->role));
         }

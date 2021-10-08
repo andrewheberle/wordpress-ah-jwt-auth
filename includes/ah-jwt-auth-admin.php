@@ -40,6 +40,15 @@ class AhJwtAuthAdmin
         echo '<p class="description">'.$description.'</p>';
   }
 
+  public function optionsPageSelectInputAction($option_name, $description=false) {
+    $option_value = get_option($option_name, '');
+    printf('<select id="%s" name="%s">', esc_attr($option_name), esc_attr($option_name));
+    wp_dropdown_roles($option_value);
+    printf('</select>');
+    if($description)
+        echo '<p class="description">'.$description.'</p>';
+  }
+
   public function registerSettingsAction() {
     add_settings_section(
       'ahjwtauth-sign-in-widget-options-section',
@@ -84,6 +93,14 @@ class AhJwtAuthAdmin
       'ahjwtauth-jwt-header',
       'JWT Header',
       function() { $this->optionsPageTextInputAction('ahjwtauth-jwt-header', 'text', __('Enter the HTTP header that contains the JWT.', 'ah-jwt-auth'), __('The JWT will be retrieved from the specified HTTP header. This defaults to the "Authorization" header.', 'ah-jwt-auth')); },
+      'ahjwtauth-sign-in-widget',
+      'ahjwtauth-sign-in-widget-options-section'
+    );
+
+    add_settings_field(
+      'ahjwtauth-user-role',
+      'Default User Role',
+      function() { $this->optionsPageSelectInputAction('ahjwtauth-user-role', __('Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth')); },
       'ahjwtauth-sign-in-widget',
       'ahjwtauth-sign-in-widget-options-section'
     );
