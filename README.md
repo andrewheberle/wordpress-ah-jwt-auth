@@ -29,4 +29,4 @@ In addition the SSO process will set an existing users role to match the "role" 
 
 ## Credits
 
-This plugin uses code originally from (https://github.com/datawiza-inc/wordpress-proxy-auth-plugin)[https://github.com/datawiza-inc/wordpress-proxy-auth-plugin] with modifications to add more features and to make things more generic so they are usable with any provider/proxy that adds the JWT as a HTTP Header.
+This plugin uses code originally from [https://github.com/datawiza-inc/wordpress-proxy-auth-plugin](https://github.com/datawiza-inc/wordpress-proxy-auth-plugin) with modifications to add more features and to make things more generic so they are usable with any provider/proxy that adds the JWT as a HTTP Header.
