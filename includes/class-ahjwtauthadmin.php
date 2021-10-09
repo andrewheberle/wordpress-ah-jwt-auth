@@ -3,7 +3,7 @@ namespace AhJwtAuth;
 
 class AhJwtAuthAdmin {
 	public function __construct() {
-		add_action( 'admin_init', array( $this, 'registerSettingsAction' ) );
+		add_action( 'admin_init', array( $this, 'register_settings_action' ) );
 		add_action( 'admin_menu', array( $this, 'options_menu_action' ) );
 	}
 
@@ -19,13 +19,13 @@ class AhJwtAuthAdmin {
 
 	public function options_page_action() {
 		if ( current_user_can( 'manage_options' ) ) {
-			include( plugin_dir_path( __FILE__ ) . "../templates/options-form.php" );
+			include( plugin_dir_path( __FILE__ ) . '../templates/options-form.php' );
 		} else {
 			wp_die( 'You do not have sufficient permissions to access this page.' );
 		}
 	}
 
-	public function options_page_text_input_action( $option_name, $type, $placeholder=false, $description=false ) {
+	public function options_page_text_input_action( $option_name, $type, $placeholder = false, $description = false ) {
 		$option_value = get_option( $option_name, '' );
 		printf(
 			'<input type="%s" id="%s" name="%s" value="%s" style="width: 100%%" autocomplete="off" placeholder="%s" />',
@@ -35,26 +35,27 @@ class AhJwtAuthAdmin {
 			esc_attr( $option_value ),
 			esc_attr( $placeholder )
 		);
-		if ( false !== $description )
-			echo '<p class="description">' . $description . '</p>';
-	}
-
-	public function options_page_select_input_action($option_name, $description=false) {
-		$option_value = get_option( $option_name, '' );
-		printf( '<select id="%s" name="%s">', esc_attr( $option_name ), esc_attr( $option_name ) );
-		wp_dropdown_roles( $option_value );
-		printf('</select>');
 		if ( false !== $description ) {
 			echo '<p class="description">' . $description . '</p>';
 		}
 	}
 
-	public function registerSettingsAction() {
+	public function options_page_select_input_action( $option_name, $description = false ) {
+		$option_value = get_option( $option_name, '' );
+		printf( '<select id="%s" name="%s">', esc_attr( $option_name ), esc_attr( $option_name ) );
+		wp_dropdown_roles( $option_value );
+		printf( '</select>' );
+		if ( false !== $description ) {
+			echo '<p class="description">' . $description . '</p>';
+		}
+	}
+
+	public function register_settings_action() {
 		add_settings_section(
 			'ahjwtauth-sign-in-widget-options-section',
 			'',
 			null,
-			'ahjwtauth-sign-in-widget'
+			'ahjwtauth-sign-in-widget',
 		);
 		
 		register_setting(
