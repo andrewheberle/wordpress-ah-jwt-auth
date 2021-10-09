@@ -4,28 +4,28 @@ namespace AhJwtAuth;
 class AhJwtAuthAdmin {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'registerSettingsAction' ) );
-		add_action( 'admin_menu', array( $this, 'optionsMenuAction' ) );
+		add_action( 'admin_menu', array( $this, 'options_menu_action' ) );
 	}
 
-	public function optionsMenuAction() {
+	public function options_menu_action() {
 		add_options_page(
 			'AH JWT Auth Options',
 			'AH JWT Auth',
 			'manage_options',
 			'ahjwtauth-sign-in-widget',
-			array( $this, 'optionsPageAction' )
+			array( $this, 'options_page_action' )
 		);
 	}
 
-	public function optionsPageAction() {
-		if ( current_user_can( 'manage_options' ) )  {
-			include( plugin_dir_path( __FILE__ )."../templates/options-form.php" );
+	public function options_page_action() {
+		if ( current_user_can( 'manage_options' ) ) {
+			include( plugin_dir_path( __FILE__ ) . "../templates/options-form.php" );
 		} else {
 			wp_die( 'You do not have sufficient permissions to access this page.' );
 		}
 	}
 
-	public function optionsPageTextInputAction($option_name, $type, $placeholder=false, $description=false) {
+	public function options_page_text_input_action( $option_name, $type, $placeholder=false, $description=false ) {
 		$option_value = get_option( $option_name, '' );
 		printf(
 			'<input type="%s" id="%s" name="%s" value="%s" style="width: 100%%" autocomplete="off" placeholder="%s" />',
@@ -36,16 +36,16 @@ class AhJwtAuthAdmin {
 			esc_attr( $placeholder )
 		);
 		if ( false !== $description )
-			echo '<p class="description">'.$description.'</p>';
+			echo '<p class="description">' . $description . '</p>';
 	}
 
-	public function optionsPageSelectInputAction($option_name, $description=false) {
+	public function options_page_select_input_action($option_name, $description=false) {
 		$option_value = get_option( $option_name, '' );
 		printf( '<select id="%s" name="%s">', esc_attr( $option_name ), esc_attr( $option_name ) );
 		wp_dropdown_roles( $option_value );
 		printf('</select>');
 		if ( false !== $description ) {
-			echo '<p class="description">'.$description.'</p>';
+			echo '<p class="description">' . $description . '</p>';
 		}
 	}
 
@@ -88,7 +88,14 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-private-secret',
 			'JWT Private Secret',
-			function() { $this->optionsPageTextInputAction('ahjwtauth-private-secret', 'text', __('Paste your JWT private secret here.', 'ah-jwt-auth'), __('This secret is used for verifying the token (use this field or the "JWKS URL", not both).', 'ah-jwt-auth')); },
+			function() {
+				$this->options_page_text_input_action(
+					'ahjwtauth-private-secret',
+					'text',
+					__( 'Paste your JWT private secret here.', 'ah-jwt-auth' ),
+					__( 'This secret is used for verifying the token (use this field or the "JWKS URL", not both).', 'ah-jwt-auth' ),
+				);
+			},
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-sign-in-widget-options-section'
 		);
@@ -97,12 +104,11 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-jwks-url',
 			'JWKS URL',
 			function() {
-				$this->optionsPageTextInputAction(
+				$this->options_page_text_input_action(
 					'ahjwtauth-jwks-url',
 					'text',
-					__('Enter the JWKS URL to validate the JWT.', 'ah-jwt-auth'),
-					__('The retreived JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)',
-					'ah-jwt-auth')
+					__( 'Enter the JWKS URL to validate the JWT.', 'ah-jwt-auth' ),
+					__( 'The retreived JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth' ),
 				); 
 			},
 			'ahjwtauth-sign-in-widget',
@@ -113,11 +119,11 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-jwt-header',
 			'JWT Header',
 			function() {
-				$this->optionsPageTextInputAction(
+				$this->options_page_text_input_action(
 					'ahjwtauth-jwt-header',
 					'text',
-					__('Enter the HTTP header that contains the JWT.', 'ah-jwt-auth'),
-					__('The JWT will be retrieved from the specified HTTP header. This defaults to the "Authorization" header.', 'ah-jwt-auth'),
+					__( 'Enter the HTTP header that contains the JWT.', 'ah-jwt-auth' ),
+					__( 'The JWT will be retrieved from the specified HTTP header. This defaults to the "Authorization" header.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',
@@ -128,9 +134,9 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-user-role',
 			'Default User Role',
 			function() {
-				$this->optionsPageSelectInputAction(
+				$this->options_page_select_input_action(
 					'ahjwtauth-user-role',
-					__('Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth'),
+					__( 'Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',

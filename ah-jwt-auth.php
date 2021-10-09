@@ -108,7 +108,7 @@ class AhJwtAuthSignIn {
 
         // handle "Header: Bearer <JWT>" form
         $array = explode(" ", $_SERVER[$jwtHeader]);
-        if ($array[0] == "Bearer") {
+        if ( "Bearer" == $array[0] ) {
             array_shift($array);
         }
 
@@ -117,7 +117,7 @@ class AhJwtAuthSignIn {
 
     private function verifyToken($jwt) {
         $key = $this->getKey();
-        if ($key === false) {
+        if ( false === $key ) {
             return false;
         }
         try {
