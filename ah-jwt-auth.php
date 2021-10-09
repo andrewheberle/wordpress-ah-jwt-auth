@@ -13,7 +13,7 @@ namespace AhJwtAuth;
  */
 
 require 'vendor/autoload.php';
-require 'includes/ah-jwt-auth-admin.php';
+require 'includes/class-ahjwtauthadmin.php';
 
 use Exception;
 use Firebase\JWT\JWT;
@@ -24,78 +24,78 @@ class AhJwtAuthSignIn {
     public function __construct() {
         $this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
 
-        add_action('admin_notices', array($this, 'ahjwtauth_admin_notice'));
-        add_action('login_head', array($this, 'ahjwtauth_log_user_in'));
+        add_action( 'admin_notices', array( $this, 'ahjwtauth_admin_notice' ) );
+        add_action( 'login_head', array( $this, 'ahjwtauth_log_user_in' ) );
     }
 
     public function ahjwtauth_log_user_in() {
         // if user is already logged in just return immediately
-        if (is_user_logged_in()) {
+        if ( is_user_logged_in() ) {
             return;
         }
 
         // get jwt
         $jwt = $this->getToken();
-        if ($jwt === false) {
+        if ( false === $jwt ) {
             return;
         }
 
         // verify JWT and grab payload
         $payload = $this->verifyToken($jwt);
-        if ($payload === false) {
+        if ( false === $payload ) {
             return;
         }
 
         // If we cannot extract the user's email from header
-        if (!isset($payload->email)) {
+        if ( !isset($payload->email) ) {
             $this->error = __('AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth');
             return;
         }
         $email = $payload->email;
 
-        $user = get_user_by('email', $email);
+        $user = get_user_by( 'email', $email );
 
-        if (!$user) {
-            $random_password = wp_generate_password($length = 64, $include_standard_special_chars = false);
-            $user_id = wp_create_user($email, $random_password, $email);
-            $user = get_user_by('id', $user_id);
+        if ( !$user ) {
+            $random_password = wp_generate_password( $length = 64, $include_standard_special_chars = false );
+            $user_id = wp_create_user( $email, $random_password, $email );
+            $user = get_user_by( 'id', $user_id );
 
             // set role on creation to configured default if not included in jwt
-            if (!isset($payload->role)) {
-              $user->set_role(get_option('ahjwtauth-user-role', 'subscriber'));
+            if ( !isset($payload->role) ) {
+              $user->set_role( get_option( 'ahjwtauth-user-role', 'subscriber' ) );
             }
         }
 
         // If we can extract the user's role from the JWT, then set the role, otherwise leave as-is
-        if (isset($payload->role)) {
-            $user->set_role(strtolower($payload->role));
+        if ( isset( $payload->role ) ) {
+            $user->set_role( strtolower( $payload->role ) );
         }
 
         wp_clear_auth_cookie();
-        wp_set_current_user($user->ID);
-        wp_set_auth_cookie($user->ID);
-        do_action('wp_login', $user->login, $user);
+        wp_set_current_user( $user->ID );
+        wp_set_auth_cookie( $user->ID );
+        do_action( 'wp_login', $user->login, $user );
 
         // redirect after login
         $redirectUrl = home_url();
-        if (current_user_can('manage_options')) {
+        if ( current_user_can('manage_options') ) {
             $redirectUrl = admin_url();
         }
-        wp_safe_redirect(isset($_GET['redirect_to']) ? $_GET['redirect_to'] : $redirectUrl);
+        wp_safe_redirect( isset($_GET['redirect_to']) ? $_GET['redirect_to'] : $redirectUrl );
         exit;
     }
 
     public function ahjwtauth_admin_notice() {
-        if (isset($this->error)) {
+        if ( isset($this->error) ) {
             $class = 'notice notice-error';
             $message = $this->error;
-            printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
+            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
         }
 
-        if (isset($this->warning)) {
+        if ( isset($this->warning) ) {
             $class = 'notice notice-warning is-dismissible';
             $message = $this->warning;
-            printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
+            printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
         }
     }
 
