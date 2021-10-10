@@ -6,8 +6,8 @@
  * @file
  * @category AhJwtAuthAdmin
  * @package AhJwtAuth
- * 
  */
+
 namespace AhJwtAuth;
 
 /**
@@ -17,7 +17,6 @@ namespace AhJwtAuth;
  *
  * @category Class
  * @package AhJwtAuth
- * 
  */
 class AhJwtAuthAdmin {
 	public function __construct() {

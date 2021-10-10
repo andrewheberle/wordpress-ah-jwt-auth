@@ -2,12 +2,12 @@
 /**
  *
  * AhJwtAuthSignIn is the main class that handles sign-in.
- * 
+ *
  * @file
  * @category AhJwtAuthSignIn
  * @package  AhJwtAuth
- * 
  */
+
 namespace AhJwtAuth;
 
 use Exception;
