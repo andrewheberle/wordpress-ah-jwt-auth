@@ -89,6 +89,13 @@ class AhJwtAuthSignIn {
 		exit;
 	}
 
+	/**
+	 * Prints any admin notices
+	 *
+	 * If any warning or error values have been set, they are printed using this function
+	 *
+	 * @return void
+	 */
 	public function ahjwtauth_admin_notice() {
 		if ( isset( $this->error ) ) {
 			$class = 'notice notice-error';
@@ -103,6 +110,15 @@ class AhJwtAuthSignIn {
 		}
 	}
 
+	/**
+	 * Retrieves the JWT
+	 *
+	 * The JWT is retrieved from the configured HTTP request header
+	 *
+	 * A value of false is returned on error
+	 *
+	 * @return string the payload from the JWT
+	 */
 	private function get_token() {
 		$jwt_header = $this->get_header();
 		if ( ! isset( $_SERVER[ $jwt_header ] ) ) {
@@ -126,7 +142,7 @@ class AhJwtAuthSignIn {
 	 *
 	 * A value of false is returned on error
 	 *
-     * @param string $jwt the JWT to decode
+	 * @param string $jwt the JWT to decode.
 	 * @return object the payload from the JWT
 	 */
 	private function verify_token( $jwt ) {
@@ -203,7 +219,7 @@ class AhJwtAuthSignIn {
 	/**
 	 * Returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
 	 *
-	 * The returned string is done by converting the configured settingto uppercase, 
+	 * The returned string is done by converting the configured settingto uppercase,
 	 * replacing "-" with "_" and adding the prefix of "HTTP_".
 	 *
 	 * @return string the header name usable with _$SERVER
