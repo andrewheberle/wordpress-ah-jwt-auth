@@ -1,11 +1,3 @@
-<?php
-
-/**
- * @file
- * This displays our options page
- */
-
-?>
 <div class="wrap">
 	<h1>AH JWT Auth</h1>
 

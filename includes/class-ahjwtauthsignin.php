@@ -1,4 +1,13 @@
 <?php
+/**
+ *
+ * AhJwtAuthSignIn is the main class that handles sign-in.
+ * 
+ * @file
+ * @category AhJwtAuthSignIn
+ * @package  AhJwtAuth
+ * 
+ */
 namespace AhJwtAuth;
 
 use Exception;
@@ -6,6 +15,15 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use Firebase\JWT\JWK;
 
+/**
+ * 
+ * This class handles all the sign-in logic that extracts and verifies the JWT
+ * in the request and subsequently signs the user into WordPress.
+ *
+ * @category Class
+ * @package  AhJwtAuth
+ * 
+ */
 class AhJwtAuthSignIn {
 	public function __construct() {
 		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();

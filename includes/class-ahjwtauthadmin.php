@@ -1,6 +1,24 @@
 <?php
+/**
+ *
+ * AhJwtAuthAdmin handles the admin side of the plugin.
+ *
+ * @file
+ * @category AhJwtAuthAdmin
+ * @package AhJwtAuth
+ * 
+ */
 namespace AhJwtAuth;
 
+/**
+ *
+ * This class handles the settings/admin sie of the plugin to
+ * allow configuration of the plugin.
+ *
+ * @category Class
+ * @package AhJwtAuth
+ * 
+ */
 class AhJwtAuthAdmin {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'register_settings_action' ) );
