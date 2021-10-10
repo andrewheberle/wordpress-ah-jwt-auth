@@ -86,19 +86,19 @@ class AhJwtAuthSignIn {
 	}
 
 	private function get_token() {
-		$jwtHeader = $this->get_header();
-		if ( !isset( $_SERVER[$jwtHeader] ) ) {
+		$jwt_header = $this->get_header();
+		if ( !isset( $_SERVER[ $jwt_header ] ) ) {
 			$this->warning = __( 'AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth' );
 			return false;
 		}
 
 		// Handle "Header: Bearer <JWT>" form by stipping the "Bearer " prefix.
-		$array = explode( " ", $_SERVER[$jwtHeader] );
-		if ( "Bearer" == $array[0] ) {
+		$array = explode( ' ', wp_unslash( $_SERVER[ $jwt_header ] ) );
+		if ( 'Bearer' == $array[0] ) {
 			array_shift( $array );
 		}
 
-		return implode( " ", $array );
+		return implode( ' ', $array );
 	}
 
 	private function verify_token( $jwt ) {
@@ -118,16 +118,16 @@ class AhJwtAuthSignIn {
 	}
 
 	private function get_key() {
-		$jwksUrl = get_option( 'ahjwtauth-jwks-url' );
-		if ('' !== $jwksUrl) {
+		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
+		if ( '' !== $jwks_url ) {
 			// retrieve json from JWKS URL with caching.
 			$json = get_transient( 'ahjwtauth_jwks_json' );
  
 			// if transient did not exist, attempt to get url.
 			if (false === $json) {
-				$response = wp_remote_get( $jwksUrl );
+				$response = wp_remote_get( $jwks_url );
 				if ( is_wp_error( $response ) ) {
-					$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL: ' . $response->get_error_message(), 'ah-jwt-auth' );
+					$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL', 'ah-jwt-auth' );
 					return false;
 				}
 
@@ -163,6 +163,6 @@ class AhJwtAuthSignIn {
 
 	private function get_header() {
 		// returns a header in "HTTP" form into a form usable with $_SERVER['HEADER'] by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_".
-		return 'HTTP_' . str_replace( "-", "_", strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );
+		return 'HTTP_' . str_replace( '-', '_', strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );
 	}
 }

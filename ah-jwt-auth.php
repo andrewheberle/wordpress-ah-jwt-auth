@@ -16,4 +16,4 @@ require 'vendor/autoload.php';
 require 'includes/class-ahjwtauthsignin.php';
 require 'includes/class-ahjwtauthadmin.php';
 
-$ahJwtAuth = new AhJwtAuthSignIn();
+$ah_jwt_auth = new AhJwtAuthSignIn();

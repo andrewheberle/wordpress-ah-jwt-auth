@@ -68,8 +68,8 @@ class AhJwtAuthAdmin {
 		);
 
 		register_setting(
-			'ahjwtauth-sign-in-widget', 
-			'ahjwtauth-jwks-url', 
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-jwks-url',
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
@@ -77,8 +77,8 @@ class AhJwtAuthAdmin {
 		);
 
 		register_setting(
-			'ahjwtauth-sign-in-widget', 
-			'ahjwtauth-jwt-header', 
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-jwt-header',
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
