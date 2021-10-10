@@ -24,6 +24,11 @@ use Firebase\JWT\JWK;
  * @package  AhJwtAuth
  */
 class AhJwtAuthSignIn {
+	/**
+	 * Sets up the class ready for use
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		// Set up admin class.
 		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
@@ -32,6 +37,14 @@ class AhJwtAuthSignIn {
 		add_action( 'login_head', array( $this, 'ahjwtauth_log_user_in' ) );
 	}
 
+	/**
+	 * Logs user in based on JWT
+	 *
+	 * If a valid JWT is present in the HTTP request it is verified and parsed so
+	 * the user contained in the token can be signed in
+	 *
+	 * @return void
+	 */
 	public function ahjwtauth_log_user_in() {
 		// if user is already logged in just return immediately.
 		if ( is_user_logged_in() ) {

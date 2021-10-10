@@ -1,3 +1,13 @@
+<?php
+/**
+ *
+ * This file renders the settings page for the plugin
+ *
+ * @file
+ * @package AhJwtAuth
+ */
+
+?>
 <div class="wrap">
 	<h1>AH JWT Auth</h1>
 
