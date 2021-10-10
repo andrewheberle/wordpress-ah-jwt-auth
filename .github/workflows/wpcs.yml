@@ -1,7 +1,5 @@
 name: WPCS check
-
 on: pull_request
-
 jobs:
   phpcs:
       name: WPCS

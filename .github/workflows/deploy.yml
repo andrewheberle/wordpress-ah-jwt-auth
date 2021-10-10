@@ -12,3 +12,5 @@ jobs:
       uses: 10up/action-wordpress-plugin-deploy@2.0.0
       env:
         SLUG: ah-jwt-auth
+        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
