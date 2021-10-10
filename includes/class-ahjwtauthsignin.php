@@ -1,6 +1,11 @@
 <?php
 namespace AhJwtAuth;
 
+use Exception;
+use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
+use Firebase\JWT\JWK;
+
 class AhJwtAuthSignIn {
 	public function __construct() {
 		$this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
@@ -16,13 +21,13 @@ class AhJwtAuthSignIn {
 		}
 
 		// get jwt
-		$jwt = $this->getToken();
+		$jwt = $this->get_token();
 		if ( false === $jwt ) {
 			return;
 		}
 
 		// verify JWT and grab payload
-		$payload = $this->verifyToken($jwt);
+		$payload = $this->verify_token( $jwt );
 		if ( false === $payload ) {
 			return;
 		}
@@ -58,11 +63,11 @@ class AhJwtAuthSignIn {
 		do_action( 'wp_login', $user->login, $user );
 
 		// redirect after login
-		$redirectUrl = home_url();
-		if ( current_user_can('manage_options') ) {
-			$redirectUrl = admin_url();
+		$redirect_url = home_url();
+		if ( current_user_can( 'manage_options' ) ) {
+			$redirect_url = admin_url();
 		}
-		wp_safe_redirect( isset( $_GET['redirect_to'] ) ? $_GET['redirect_to'] : $redirectUrl );
+		wp_safe_redirect( isset( $_GET['redirect_to'] ) ? wp_unslash( $_GET['redirect_to'] ) : $redirect_url );
 		exit;
 	}
 
@@ -80,8 +85,8 @@ class AhJwtAuthSignIn {
 		}
 	}
 
-	private function getToken() {
-		$jwtHeader = $this->getHeader();
+	private function get_token() {
+		$jwtHeader = $this->get_header();
 		if ( !isset( $_SERVER[$jwtHeader] ) ) {
 			$this->warning = __( 'AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth' );
 			return false;
@@ -96,8 +101,8 @@ class AhJwtAuthSignIn {
 		return implode( " ", $array );
 	}
 
-	private function verifyToken( $jwt ) {
-		$key = $this->getKey();
+	private function verify_token( $jwt ) {
+		$key = $this->get_key();
 		if ( false === $key ) {
 			return false;
 		}
@@ -112,7 +117,7 @@ class AhJwtAuthSignIn {
 		return $payload;
 	}
 
-	private function getKey() {
+	private function get_key() {
 		$jwksUrl = get_option( 'ahjwtauth-jwks-url' );
 		if ('' !== $jwksUrl) {
 			// retrieve json from JWKS URL with caching
@@ -121,7 +126,7 @@ class AhJwtAuthSignIn {
 			// if transient did not exist, attempt to get url
 			if (false === $json) {
 				$response = wp_remote_get( $jwksUrl );
-				if ( is_wp_error($response) ) {
+				if ( is_wp_error( $response ) ) {
 					$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL: ' . $response->get_error_message(), 'ah-jwt-auth' );
 					return false;
 				}
@@ -156,7 +161,7 @@ class AhJwtAuthSignIn {
 		return $key;
 	}
 
-	private function getHeader() {
+	private function get_header() {
 		// returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
 		// by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_"
 		return 'HTTP_' . str_replace( "-", "_", strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );

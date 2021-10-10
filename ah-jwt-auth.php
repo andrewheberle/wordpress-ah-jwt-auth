@@ -16,9 +16,4 @@ require 'vendor/autoload.php';
 require 'includes/class-ahjwtauthsignin.php';
 require 'includes/class-ahjwtauthadmin.php';
 
-use Exception;
-use Firebase\JWT\JWT;
-use Firebase\JWT\SignatureInvalidException;
-use Firebase\JWT\JWK;
-
 $ahJwtAuth = new AhJwtAuthSignIn();
