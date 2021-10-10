@@ -60,6 +60,10 @@ class AhJwtAuthAdmin {
 	/**
 	 * Displays a text input field on the options page
 	 *
+	 * @param string $option_name the name of the plugin option
+	 * @param string $type the type of input field
+	 * @param string $placeholder the placeholder text to include in the input field
+	 * @param string $description description to display under option
 	 * @return void
 	 */
 	public function options_page_text_input_action( $option_name, $type, $placeholder = false, $description = false ) {
@@ -80,6 +84,8 @@ class AhJwtAuthAdmin {
 	/**
 	 * Displays a select/drop-down input field on the options page
 	 *
+	 * @param string $option_name the name of the plugin option
+	 * @param string $description description to display under option
 	 * @return void
 	 */
 	public function options_page_select_input_action( $option_name, $description = false ) {
@@ -93,7 +99,7 @@ class AhJwtAuthAdmin {
 	}
 
 	/**
-	 * Displays a text input field on the options page
+	 * Sets up actions for plugin settings
 	 *
 	 * @return void
 	 */
