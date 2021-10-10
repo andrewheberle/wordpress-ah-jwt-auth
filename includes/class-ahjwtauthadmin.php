@@ -19,11 +19,21 @@ namespace AhJwtAuth;
  * @package AhJwtAuth
  */
 class AhJwtAuthAdmin {
+	/**
+	 * Sets up the class ready for use
+	 *
+	 * @return void
+	 */
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'register_settings_action' ) );
 		add_action( 'admin_menu', array( $this, 'options_menu_action' ) );
 	}
 
+	/**
+	 * Sets up the plugin options page action
+	 *
+	 * @return void
+	 */
 	public function options_menu_action() {
 		add_options_page(
 			'AH JWT Auth Options',
@@ -34,6 +44,11 @@ class AhJwtAuthAdmin {
 		);
 	}
 
+	/**
+	 * Includes the option page if the user has permissions
+	 *
+	 * @return void
+	 */
 	public function options_page_action() {
 		if ( current_user_can( 'manage_options' ) ) {
 			include( plugin_dir_path( __FILE__ ) . '../templates/options-form.php' );
@@ -42,6 +57,11 @@ class AhJwtAuthAdmin {
 		}
 	}
 
+	/**
+	 * Displays a text input field on the options page
+	 *
+	 * @return void
+	 */
 	public function options_page_text_input_action( $option_name, $type, $placeholder = false, $description = false ) {
 		$option_value = get_option( $option_name, '' );
 		printf(
@@ -57,6 +77,11 @@ class AhJwtAuthAdmin {
 		}
 	}
 
+	/**
+	 * Displays a select/drop-down input field on the options page
+	 *
+	 * @return void
+	 */
 	public function options_page_select_input_action( $option_name, $description = false ) {
 		$option_value = get_option( $option_name, '' );
 		printf( '<select id="%s" name="%s">', esc_attr( $option_name ), esc_attr( $option_name ) );
@@ -67,6 +92,11 @@ class AhJwtAuthAdmin {
 		}
 	}
 
+	/**
+	 * Displays a text input field on the options page
+	 *
+	 * @return void
+	 */
 	public function register_settings_action() {
 		add_settings_section(
 			'ahjwtauth-sign-in-widget-options-section',
