@@ -57,6 +57,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
+= 1.3.1 =
+* Clean-ups and bug fixes
+
 = 1.3.0 =
 * Allow setting default role for auto-created users
 
