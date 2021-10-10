@@ -36,7 +36,7 @@ class AhJwtAuthAdmin {
 			esc_attr( $placeholder )
 		);
 		if ( false !== $description ) {
-			echo '<p class="description">' . $description . '</p>';
+			echo '<p class="description">' . esc_html( $description ) . '</p>';
 		}
 	}
 
@@ -46,7 +46,7 @@ class AhJwtAuthAdmin {
 		wp_dropdown_roles( $option_value );
 		printf( '</select>' );
 		if ( false !== $description ) {
-			echo '<p class="description">' . $description . '</p>';
+			echo '<p class="description">' . esc_html( $description ) . '</p>';
 		}
 	}
 

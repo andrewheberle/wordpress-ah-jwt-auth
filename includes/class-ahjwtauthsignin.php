@@ -33,7 +33,7 @@ class AhJwtAuthSignIn {
 		}
 
 		// If we cannot extract the user's email from header this is an error.
-		if ( !isset( $payload->email ) ) {
+		if ( ! isset( $payload->email ) ) {
 			$this->error = __( 'AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth' );
 			return;
 		}
@@ -41,13 +41,13 @@ class AhJwtAuthSignIn {
 
 		$user = get_user_by( 'email', $email );
 
-		if ( !$user ) {
+		if ( ! $user ) {
 			$random_password = wp_generate_password( 64, false );
 			$user_id = wp_create_user( $email, $random_password, $email );
 			$user = get_user_by( 'id', $user_id );
 
 			// set role on creation to configured default if not included in jwt.
-			if ( !isset( $payload->role ) ) {
+			if ( ! isset( $payload->role ) ) {
 				$user->set_role( get_option( 'ahjwtauth-user-role', 'subscriber' ) );
 			}
 		}
@@ -87,13 +87,13 @@ class AhJwtAuthSignIn {
 
 	private function get_token() {
 		$jwt_header = $this->get_header();
-		if ( !isset( $_SERVER[ $jwt_header ] ) ) {
+		if ( ! isset( $_SERVER[ $jwt_header ] ) ) {
 			$this->warning = __( 'AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth' );
 			return false;
 		}
 
 		// Handle "Header: Bearer <JWT>" form by stipping the "Bearer " prefix.
-		$array = explode( ' ', wp_unslash( $_SERVER[ $jwt_header ] ) );
+		$array = explode( ' ', sanitize_text_field( $_SERVER[ $jwt_header ] ) );
 		if ( 'Bearer' == $array[0] ) {
 			array_shift( $array );
 		}
@@ -122,9 +122,9 @@ class AhJwtAuthSignIn {
 		if ( '' !== $jwks_url ) {
 			// retrieve json from JWKS URL with caching.
 			$json = get_transient( 'ahjwtauth_jwks_json' );
- 
+			
 			// if transient did not exist, attempt to get url.
-			if (false === $json) {
+			if ( false === $json ) {
 				$response = wp_remote_get( $jwks_url );
 				if ( is_wp_error( $response ) ) {
 					$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL', 'ah-jwt-auth' );
@@ -139,7 +139,7 @@ class AhJwtAuthSignIn {
 			}
 			// try to decode json.
 			$jwks = @json_decode( $json, true );
-			if (null === $jwks) {
+			if ( null === $jwks ) {
 				$this->error = __( 'AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth' );
 				return false;
 			}
