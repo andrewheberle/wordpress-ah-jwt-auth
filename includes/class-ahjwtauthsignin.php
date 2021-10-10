@@ -8,32 +8,32 @@ use Firebase\JWT\JWK;
 
 class AhJwtAuthSignIn {
 	public function __construct() {
-		$this->AhJwtAuthAdmin = new AhJwtAuthAdmin();
+		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
 
 		add_action( 'admin_notices', array( $this, 'ahjwtauth_admin_notice' ) );
 		add_action( 'login_head', array( $this, 'ahjwtauth_log_user_in' ) );
 	}
 
 	public function ahjwtauth_log_user_in() {
-		// if user is already logged in just return immediately
+		// if user is already logged in just return immediately.
 		if ( is_user_logged_in() ) {
 			return;
 		}
 
-		// get jwt
+		// get jwt.
 		$jwt = $this->get_token();
 		if ( false === $jwt ) {
 			return;
 		}
 
-		// verify JWT and grab payload
+		// verify JWT and grab payload.
 		$payload = $this->verify_token( $jwt );
 		if ( false === $payload ) {
 			return;
 		}
 
-		// If we cannot extract the user's email from header
-		if ( !isset($payload->email) ) {
+		// If we cannot extract the user's email from header this is an error.
+		if ( !isset( $payload->email ) ) {
 			$this->error = __( 'AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth' );
 			return;
 		}
@@ -42,17 +42,17 @@ class AhJwtAuthSignIn {
 		$user = get_user_by( 'email', $email );
 
 		if ( !$user ) {
-			$random_password = wp_generate_password( $length = 64, $include_standard_special_chars = false );
+			$random_password = wp_generate_password( 64, false );
 			$user_id = wp_create_user( $email, $random_password, $email );
 			$user = get_user_by( 'id', $user_id );
 
-			// set role on creation to configured default if not included in jwt
+			// set role on creation to configured default if not included in jwt.
 			if ( !isset( $payload->role ) ) {
-			  $user->set_role( get_option( 'ahjwtauth-user-role', 'subscriber' ) );
+				$user->set_role( get_option( 'ahjwtauth-user-role', 'subscriber' ) );
 			}
 		}
 
-		// If we can extract the user's role from the JWT, then set the role, otherwise leave as-is
+		// If we can extract the user's role from the JWT, then set the role, otherwise leave as-is.
 		if ( isset( $payload->role ) ) {
 			$user->set_role( strtolower( $payload->role ) );
 		}
@@ -62,7 +62,7 @@ class AhJwtAuthSignIn {
 		wp_set_auth_cookie( $user->ID );
 		do_action( 'wp_login', $user->login, $user );
 
-		// redirect after login
+		// redirect after login.
 		$redirect_url = home_url();
 		if ( current_user_can( 'manage_options' ) ) {
 			$redirect_url = admin_url();
@@ -92,7 +92,7 @@ class AhJwtAuthSignIn {
 			return false;
 		}
 
-		// handle "Header: Bearer <JWT>" form
+		// Handle "Header: Bearer <JWT>" form by stipping the "Bearer " prefix.
 		$array = explode( " ", $_SERVER[$jwtHeader] );
 		if ( "Bearer" == $array[0] ) {
 			array_shift( $array );
@@ -120,10 +120,10 @@ class AhJwtAuthSignIn {
 	private function get_key() {
 		$jwksUrl = get_option( 'ahjwtauth-jwks-url' );
 		if ('' !== $jwksUrl) {
-			// retrieve json from JWKS URL with caching
+			// retrieve json from JWKS URL with caching.
 			$json = get_transient( 'ahjwtauth_jwks_json' );
  
-			// if transient did not exist, attempt to get url
+			// if transient did not exist, attempt to get url.
 			if (false === $json) {
 				$response = wp_remote_get( $jwksUrl );
 				if ( is_wp_error( $response ) ) {
@@ -137,16 +137,16 @@ class AhJwtAuthSignIn {
 				$this->error = __( 'AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth' );
 				return false;
 			}
-			// try to decode json
+			// try to decode json.
 			$jwks = @json_decode( $json, true );
 			if (null === $jwks) {
 				$this->error = __( 'AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth' );
 				return false;
 			}
-			// cache json for future
+			// cache json for future.
 			set_transient( 'ahjwtauth_jwks_json', $json, 60 * 240 );
 
-			// parse the JWKS response
+			// parse the JWKS response.
 			try {
 				$key = JWK::parseKeySet( $jwks );
 			} catch ( Exception $e ) {
@@ -154,7 +154,7 @@ class AhJwtAuthSignIn {
 				return false;
 			}
 		} else {
-			// otherwise use shared secret
+			// otherwise use shared secret.
 			$key = get_option( 'ahjwtauth-private-secret' );
 		}
 
@@ -162,8 +162,7 @@ class AhJwtAuthSignIn {
 	}
 
 	private function get_header() {
-		// returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
-		// by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_"
+		// returns a header in "HTTP" form into a form usable with $_SERVER['HEADER'] by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_".
 		return 'HTTP_' . str_replace( "-", "_", strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );
 	}
 }
