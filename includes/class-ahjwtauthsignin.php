@@ -16,16 +16,16 @@ use Firebase\JWT\SignatureInvalidException;
 use Firebase\JWT\JWK;
 
 /**
- * 
+ *
  * This class handles all the sign-in logic that extracts and verifies the JWT
  * in the request and subsequently signs the user into WordPress.
  *
  * @category Class
  * @package  AhJwtAuth
- * 
  */
 class AhJwtAuthSignIn {
 	public function __construct() {
+		// Set up admin class.
 		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
 
 		add_action( 'admin_notices', array( $this, 'ahjwtauth_admin_notice' ) );
@@ -119,6 +119,16 @@ class AhJwtAuthSignIn {
 		return implode( ' ', $array );
 	}
 
+	/**
+	 * Decodes the JWT
+	 *
+	 * The provided JWT is verified using the configured key and decoded
+	 *
+	 * A value of false is returned on error
+	 *
+     * @param string $jwt the JWT to decode
+	 * @return object the payload from the JWT
+	 */
 	private function verify_token( $jwt ) {
 		$key = $this->get_key();
 		if ( false === $key ) {
@@ -135,12 +145,23 @@ class AhJwtAuthSignIn {
 		return $payload;
 	}
 
+	/**
+	 * Returns the key to verify the JWT
+	 *
+	 * Depending on the configuration of the plugin, this function will return
+	 * the static key used to verify the JWT or will retrieve a JSON Web Key Set (JWKS)
+	 * from the configured URL
+	 *
+	 * A value of false is returned on error
+	 *
+	 * @return string the key used for verifying the signature of the JWT
+	 */
 	private function get_key() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
 		if ( '' !== $jwks_url ) {
 			// retrieve json from JWKS URL with caching.
 			$json = get_transient( 'ahjwtauth_jwks_json' );
-			
+
 			// if transient did not exist, attempt to get url.
 			if ( false === $json ) {
 				$response = wp_remote_get( $jwks_url );
@@ -179,8 +200,15 @@ class AhJwtAuthSignIn {
 		return $key;
 	}
 
+	/**
+	 * Returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
+	 *
+	 * The returned string is done by converting the configured settingto uppercase, 
+	 * replacing "-" with "_" and adding the prefix of "HTTP_".
+	 *
+	 * @return string the header name usable with _$SERVER
+	 */
 	private function get_header() {
-		// returns a header in "HTTP" form into a form usable with $_SERVER['HEADER'] by converting to uppercase, replaces "-" with "_" and prefixes with "HTTP_".
 		return 'HTTP_' . str_replace( '-', '_', strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );
 	}
 }
