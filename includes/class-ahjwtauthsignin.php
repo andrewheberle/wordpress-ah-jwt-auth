@@ -93,7 +93,7 @@ class AhJwtAuthSignIn {
 		}
 
 		// Handle "Header: Bearer <JWT>" form by stipping the "Bearer " prefix.
-		$array = explode( ' ', sanitize_text_field( $_SERVER[ $jwt_header ] ) );
+		$array = explode( ' ', sanitize_text_field( wp_unslash( $_SERVER[ $jwt_header ] ) ) );
 		if ( 'Bearer' == $array[0] ) {
 			array_shift( $array );
 		}

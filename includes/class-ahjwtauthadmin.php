@@ -57,7 +57,7 @@ class AhJwtAuthAdmin {
 			null,
 			'ahjwtauth-sign-in-widget',
 		);
-		
+
 		register_setting(
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-private-secret',
@@ -110,7 +110,7 @@ class AhJwtAuthAdmin {
 					'text',
 					__( 'Enter the JWKS URL to validate the JWT.', 'ah-jwt-auth' ),
 					__( 'The retreived JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth' ),
-				); 
+				);
 			},
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-sign-in-widget-options-section',
