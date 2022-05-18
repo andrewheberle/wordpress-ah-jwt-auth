@@ -217,7 +217,7 @@ class AhJwtAuthSignIn {
 
 			// explicitly set alg.
 			foreach ( $jwks as $k => $jwks ) {
-				$jwks[$k]['alg'] = $this->get_alg();
+				$jwks[ $k ]['alg'] = $this->get_alg();
 			}
 
 			// parse the JWKS response.
