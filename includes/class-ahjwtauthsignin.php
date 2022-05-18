@@ -14,6 +14,7 @@ use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use Firebase\JWT\JWK;
+use Firebase\JWT\Key;
 
 /**
  *
@@ -164,7 +165,7 @@ class AhJwtAuthSignIn {
 			return false;
 		}
 		try {
-			$payload = JWT::decode( $jwt, $key, array( 'RS256', 'HS256' ) );
+			$payload = JWT::decode($jwt, $key);
 		} catch ( SignatureInvalidException $e ) {
 			$this->error = __( 'AH JWT Auth cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
 			return false;
@@ -183,7 +184,7 @@ class AhJwtAuthSignIn {
 	 *
 	 * A value of false is returned on error
 	 *
-	 * @return string the key used for verifying the signature of the JWT
+	 * @return Key the key used for verifying the signature of the JWT
 	 */
 	private function get_key() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
@@ -214,6 +215,11 @@ class AhJwtAuthSignIn {
 			// cache json for future.
 			set_transient( 'ahjwtauth_jwks_json', $json, 60 * 240 );
 
+			// explicitly set alg
+			foreach ($jwks as $k => $jwks) {
+				$jwks[$k]['alg'] = $this->get_alg();
+			}
+
 			// parse the JWKS response.
 			try {
 				$key = JWK::parseKeySet( $jwks );
@@ -223,7 +229,7 @@ class AhJwtAuthSignIn {
 			}
 		} else {
 			// otherwise use shared secret.
-			$key = get_option( 'ahjwtauth-private-secret' );
+			$key = new Key(get_option( 'ahjwtauth-private-secret' ), $this->get_alg());
 		}
 
 		return $key;
@@ -239,5 +245,20 @@ class AhJwtAuthSignIn {
 	 */
 	private function get_header() {
 		return 'HTTP_' . str_replace( '-', '_', strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );
+	}
+
+	/**
+	 * Returns the key algorithm as RS256 if a public key or JWKS is used or HS256
+	 * if a secret is used.
+	 *
+	 * @return string key algorithm
+	 */
+	private function get_alg() {
+		$jwks_url = get_option('ahjwtauth-jwks-url');
+		if ('' === $jwks_url) {
+			return 'RS265';
+		}
+
+		return 'HS265';
 	}
 }
