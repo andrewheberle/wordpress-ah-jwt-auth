@@ -165,7 +165,7 @@ class AhJwtAuthSignIn {
 			return false;
 		}
 		try {
-			$payload = JWT::decode($jwt, $key);
+			$payload = JWT::decode( $jwt, $key );
 		} catch ( SignatureInvalidException $e ) {
 			$this->error = __( 'AH JWT Auth cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
 			return false;
@@ -215,8 +215,8 @@ class AhJwtAuthSignIn {
 			// cache json for future.
 			set_transient( 'ahjwtauth_jwks_json', $json, 60 * 240 );
 
-			// explicitly set alg
-			foreach ($jwks as $k => $jwks) {
+			// explicitly set alg.
+			foreach ( $jwks as $k => $jwks ) {
 				$jwks[$k]['alg'] = $this->get_alg();
 			}
 
@@ -229,7 +229,7 @@ class AhJwtAuthSignIn {
 			}
 		} else {
 			// otherwise use shared secret.
-			$key = new Key(get_option( 'ahjwtauth-private-secret' ), $this->get_alg());
+			$key = new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
 		}
 
 		return $key;
@@ -254,8 +254,8 @@ class AhJwtAuthSignIn {
 	 * @return string key algorithm
 	 */
 	private function get_alg() {
-		$jwks_url = get_option('ahjwtauth-jwks-url');
-		if ('' === $jwks_url) {
+		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
+		if ( '' === $jwks_url ) {
 			return 'RS265';
 		}
 
