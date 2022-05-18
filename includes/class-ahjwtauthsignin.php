@@ -136,7 +136,9 @@ class AhJwtAuthSignIn {
 	private function get_token() {
 		$jwt_header = $this->get_header();
 		if ( ! isset( $_SERVER[ $jwt_header ] ) ) {
-			$this->warning = __( 'AH JWT Auth is enabled, but the expected JWT was not found. Please double check your reverse proxy configuration', 'ah-jwt-auth' );
+			$msg = 'the expected JWT was not found. Please double check your reverse proxy configuration.';
+			$this->warning = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: WARNING: ' . $msg );
 			return false;
 		}
 
@@ -167,7 +169,9 @@ class AhJwtAuthSignIn {
 		try {
 			$payload = JWT::decode( $jwt, $key );
 		} catch ( SignatureInvalidException $e ) {
-			$this->error = __( 'AH JWT Auth cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
+			$msg = 'Cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly';
+			$this->error = __( 'AH JWT Auth: ' . $msg, 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: ' . $msg );
 			return false;
 		} catch ( Exception $e ) {
 			return false;
@@ -196,35 +200,38 @@ class AhJwtAuthSignIn {
 			if ( false === $json ) {
 				$response = wp_remote_get( $jwks_url );
 				if ( is_wp_error( $response ) ) {
-					$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL', 'ah-jwt-auth' );
+					$msg = 'error retrieving the JWKS URL';
+					$this->error = __( 'AH JWT Auth: ' . $msg, 'ah-jwt-auth' );
+					error_log( 'AH JWT Auth: ERROR: ' . $msg );
 					return false;
 				}
 
 				$json = wp_remote_retrieve_body( $response );
 			}
 			if ( '' == $json ) {
-				$this->error = __( 'AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth' );
+				$msg = 'could not retrieve the specified JWKS URL';
+				$this->error = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
+				error_log( 'AH JWT Auth: ERROR: ' . $msg );
 				return false;
 			}
 			// try to decode json.
 			$jwks = @json_decode( $json, true );
 			if ( null === $jwks ) {
-				$this->error = __( 'AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth' );
+				$msg = 'cannot decode the JSON retrieved from the JWKS URL';
+				$this->error = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
+				error_log( 'AH JWT Auth: ERROR: ' . $msg );
 				return false;
 			}
 			// cache json for future.
 			set_transient( 'ahjwtauth_jwks_json', $json, 60 * 240 );
 
-			// explicitly set alg.
-			foreach ( $jwks as $k => $jwks ) {
-				$jwks[ $k ]['alg'] = $this->get_alg();
-			}
-
 			// parse the JWKS response.
 			try {
-				$key = JWK::parseKeySet( $jwks );
+				$key = JWK::parseKeySet( array( 'keys' => $jwks['keys'] ) );
 			} catch ( Exception $e ) {
 				$this->error = $e->getMessage();
+				error_log( 'AH JWT Auth: ERROR: Problem parsing key-set: ' . $e->getMessage() );
+				error_log( $json );
 				return false;
 			}
 		} else {
@@ -256,9 +263,9 @@ class AhJwtAuthSignIn {
 	private function get_alg() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
 		if ( '' === $jwks_url ) {
-			return 'RS265';
+			return 'RS256';
 		}
 
-		return 'HS265';
+		return 'HS256';
 	}
 }
