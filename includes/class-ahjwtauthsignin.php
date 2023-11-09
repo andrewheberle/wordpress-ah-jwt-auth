@@ -130,10 +130,10 @@ class AhJwtAuthSignIn {
 	 * Schedules the refresh of the JWKS via WP Cron
 	 *
 	 * @return void
- 	 */
+	 */
 	public function ahjwtauth_schedule_refresh_jwks() {
-		if (!wp_next_scheduled('ahjwtauth_refresh_jwks')) {
-			wp_schedule_event(time(), 'daily', 'ahjwtauth_refresh_jwks');
+		if (!wp_next_scheduled( 'ahjwtauth_refresh_jwks' )) {
+			wp_schedule_event( time(), 'daily', 'ahjwtauth_refresh_jwks' );
 		}
 	}
 
@@ -149,7 +149,7 @@ class AhJwtAuthSignIn {
 		if ( '' === $jwks_url ) {
 			return true;
 		}
-		
+
 		// retrieve json from JWKS URL with caching.
 		$keys = get_transient( 'ahjwtauth_jwks' );
 
@@ -157,14 +157,13 @@ class AhJwtAuthSignIn {
 		if ( false !== $keys ) {
 			return $keys;
 		}
-		
+
 		// if transient did not exist, attempt to get url.
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
 		$response = wp_remote_get( $jwks_url );
 		if ( is_wp_error( $response ) ) {
-			$msg = 'error retrieving the JWKS URL';
-			$this->error = __( 'AH JWT Auth: ' . $msg, 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: ' . $msg );
+			$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: error retrieving the JWKS URL' );
 			return false;
 		}
 
@@ -173,18 +172,16 @@ class AhJwtAuthSignIn {
 
 		// check that response was not empty.
 		if ( '' === $json ) {
-			$msg = 'could not retrieve the specified JWKS URL';
-			$this->error = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: ' . $msg );
+				$this->error = __( 'AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: could not retrieve the specified JWKS URL' );
 			return false;
 		}
 
 		// try to decode json.
 		$jwks = @json_decode( $json, true );
 		if ( null === $jwks ) {
-			$msg = 'cannot decode the JSON retrieved from the JWKS URL';
-			$this->error = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: ' . $msg );
+			$this->error = __( 'AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: cannot decode the JSON retrieved from the JWKS URL' );
 			return false;
 		}
 
@@ -197,7 +194,7 @@ class AhJwtAuthSignIn {
 			error_log( $json );
 			return false;
 		}
-		
+
 		// cache JWKS for future.
 		set_transient( 'ahjwtauth_jwks', $keys, WEEK_IN_SECONDS );
 
