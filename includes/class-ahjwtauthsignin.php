@@ -132,7 +132,7 @@ class AhJwtAuthSignIn {
 	 * @return void
 	 */
 	public function ahjwtauth_schedule_refresh_jwks() {
-		if (!wp_next_scheduled( 'ahjwtauth_refresh_jwks' )) {
+		if ( !wp_next_scheduled( 'ahjwtauth_refresh_jwks' ) ) {
 			wp_schedule_event( time(), 'daily', 'ahjwtauth_refresh_jwks' );
 		}
 	}
@@ -153,7 +153,7 @@ class AhJwtAuthSignIn {
 		// retrieve json from JWKS URL with caching.
 		$keys = get_transient( 'ahjwtauth_jwks' );
 
-		// transient existed
+		// Does transient exist?
 		if ( false !== $keys ) {
 			return $keys;
 		}
@@ -214,9 +214,8 @@ class AhJwtAuthSignIn {
 	private function get_token() {
 		$jwt_header = $this->get_header();
 		if ( ! isset( $_SERVER[ $jwt_header ] ) ) {
-			$msg = 'the expected JWT was not found. Please double check your reverse proxy configuration.';
-			$this->warning = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: WARNING: ' . $msg );
+			$this->warning = __( 'AH JWT Auth the expected JWT was not found. Please double check your reverse proxy configuration.', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: WARNING: the expected JWT was not found. Please double check your reverse proxy configuration.' );
 			return false;
 		}
 
@@ -247,9 +246,8 @@ class AhJwtAuthSignIn {
 		try {
 			$payload = JWT::decode( $jwt, $key );
 		} catch ( SignatureInvalidException $e ) {
-			$msg = 'Cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly';
-			$this->error = __( 'AH JWT Auth: ' . $msg, 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: ' . $msg );
+			$this->error = __( 'AH JWT Auth: Cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: Cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly' );
 			return false;
 		} catch ( Exception $e ) {
 			return false;
