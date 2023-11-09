@@ -132,7 +132,7 @@ class AhJwtAuthSignIn {
 	 * @return void
 	 */
 	public function ahjwtauth_schedule_refresh_jwks() {
-		if ( !wp_next_scheduled( 'ahjwtauth_refresh_jwks' ) ) {
+		if ( ! wp_next_scheduled( 'ahjwtauth_refresh_jwks' ) ) {
 			wp_schedule_event( time(), 'daily', 'ahjwtauth_refresh_jwks' );
 		}
 	}
@@ -271,7 +271,7 @@ class AhJwtAuthSignIn {
 		if ( '' !== $jwks_url ) {
 			return $this->ahjwtauth_refresh_jwks();
 		}
-		
+
 		// otherwise use shared secret.
 		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
 	}
