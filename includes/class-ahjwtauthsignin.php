@@ -276,7 +276,7 @@ class AhJwtAuthSignIn {
 				error_log( $json );
 				return false;
 			}
-			
+
 			return $keys;
 		}
 
