@@ -57,6 +57,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
+= 1.5.0 =
+* Add WP cron job to refresh JWKS daily
+
 = 1.4.1 =
 * Update dependencies to resolve security issue
 
