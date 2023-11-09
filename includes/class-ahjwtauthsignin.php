@@ -127,9 +127,9 @@ class AhJwtAuthSignIn {
 	}
 
 	/**
- 	 * Schedules the refresh of the JWKS via WP Cron
-   	 *
-     	 * @return void
+	 * Schedules the refresh of the JWKS via WP Cron
+	 *
+	 * @return void
  	 */
 	public function ahjwtauth_schedule_refresh_jwks() {
 		if (!wp_next_scheduled('ahjwtauth_refresh_jwks')) {
@@ -140,8 +140,8 @@ class AhJwtAuthSignIn {
 	/**
 	 * Retrieves the JWKS from the configured URL and saves it as a transient
 	 *
-  	 * A value of false is returned on error
-    	 *
+	 * A value of false is returned on error
+	 *
 	 * @return array an associative array containing the key set
 	 */
 	private function ahjwtauth_refresh_jwks() {
@@ -168,10 +168,10 @@ class AhJwtAuthSignIn {
 			return false;
 		}
 
-		// grab response body
+		// grab response body.
 		$json = wp_remote_retrieve_body( $response );
 
-		// check that response was not empty
+		// check that response was not empty.
 		if ( '' === $json ) {
 			$msg = 'could not retrieve the specified JWKS URL';
 			$this->error = __( 'AH JWT Auth ' . $msg, 'ah-jwt-auth' );
@@ -198,10 +198,10 @@ class AhJwtAuthSignIn {
 			return false;
 		}
 		
-		// cache JWKS for future
+		// cache JWKS for future.
 		set_transient( 'ahjwtauth_jwks', $keys, WEEK_IN_SECONDS );
 
-		// return key set
+		// return key set.
 		return $keys;
 	}
 
