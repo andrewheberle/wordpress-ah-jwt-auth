@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name: AH JWT Auth
  * Description: This plugin allows sign in to WordPress using a JSON Web Token (JWT) contained in a HTTP Header
- * Version: 1.5.1
+ * Version: 1.5.2
  * Author: Andrew Heberle
  * Text Domain: ah-jwt-auth
  * Author URI: https://github.com/andrewheberle/wordpress-ah-jwt-auth/
