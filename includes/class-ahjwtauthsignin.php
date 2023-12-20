@@ -144,7 +144,7 @@ class AhJwtAuthSignIn {
 	 *
 	 * @return array an associative array containing the key set
 	 */
-	private function ahjwtauth_refresh_jwks() {
+	public function ahjwtauth_refresh_jwks() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
 		if ( '' === $jwks_url ) {
 			return true;
@@ -287,7 +287,7 @@ class AhJwtAuthSignIn {
 	/**
 	 * Returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
 	 *
-	 * The returned string is done by converting the configured settingto uppercase,
+	 * The returned string is done by converting the configured setting to uppercase,
 	 * replacing "-" with "_" and adding the prefix of "HTTP_".
 	 *
 	 * @return string the header name usable with _$SERVER
