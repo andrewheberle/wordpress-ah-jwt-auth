@@ -4,7 +4,7 @@ Donate link: https://paypal.me/andrewheberle
 Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
 Tested up to: 6.3.2
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 Requires PHP: 7.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -57,7 +57,7 @@ Currently only the HS256 and RS256 alorithms are supported.
 
 == Changelog ==
 
-= 1.5.2 =
+= 1.5.3 =
 * Make JWKS refresh function public
 
 = 1.5.1 =
