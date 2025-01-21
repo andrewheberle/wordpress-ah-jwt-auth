@@ -139,6 +139,16 @@ class AhJwtAuthAdmin {
 			),
 		);
 
+		register_setting(
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-user-role',
+			array(
+				'type' => 'string',
+				'show_in_rest' => true,
+				'default' => 'subscriber'
+			),
+		);
+
 		add_settings_field(
 			'ahjwtauth-private-secret',
 			'JWT Private Secret',
