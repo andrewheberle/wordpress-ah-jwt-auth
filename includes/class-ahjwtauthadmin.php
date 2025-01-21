@@ -135,7 +135,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
-				'default' => 'Authorization',
+				'default' => 'Cf-Access-Jwt-Assertion',
 			),
 		);
 
