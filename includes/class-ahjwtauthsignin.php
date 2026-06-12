@@ -26,6 +26,27 @@ use Firebase\JWT\Key;
  */
 class AhJwtAuthSignIn {
 	/**
+	 * Admin handler.
+	 *
+	 * @var AhJwtAuthAdmin
+	 */
+	private $ah_jwt_auth_admin;
+
+	/**
+	 * Error message to display in admin notices.
+	 *
+	 * @var string
+	 */
+	private $error;
+
+	/**
+	 * Warning message to display in admin notices.
+	 *
+	 * @var string
+	 */
+	private $warning;
+
+	/**
 	 * Sets up the class ready for use
 	 *
 	 * @return void
@@ -345,10 +366,40 @@ class AhJwtAuthSignIn {
 	 */
 	private function get_alg() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
-		if ( '' === $jwks_url ) {
+		if ( '' !== $jwks_url ) {
+			return 'RS256';
+		}
+
+		if ( $this->is_public_key( get_option( 'ahjwtauth-private-secret' ) ) ) {
 			return 'RS256';
 		}
 
 		return 'HS256';
+	}
+
+	/**
+	 * Determines whether the configured key material is a public key.
+	 *
+	 * @param string $key_material the configured key material.
+	 * @return bool true if the key material is a public key
+	 */
+	private function is_public_key( $key_material ) {
+		if ( ! is_string( $key_material ) || '' === trim( $key_material ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'openssl_pkey_get_public' ) ) {
+			$public_key = @openssl_pkey_get_public( $key_material );
+			if ( false !== $public_key ) {
+				if ( is_resource( $public_key ) ) {
+					openssl_free_key( $public_key );
+				}
+				return true;
+			}
+
+			return false;
+		}
+
+		return 1 === preg_match( '/-----BEGIN (PUBLIC KEY|RSA PUBLIC KEY|CERTIFICATE)-----/', $key_material );
 	}
 }

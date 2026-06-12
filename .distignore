@@ -1,6 +1,8 @@
 /.wordpress-org
 /.git
 /.github
+/tests
+/kahlan-config.php
 
 .distignore
 .gitignore
