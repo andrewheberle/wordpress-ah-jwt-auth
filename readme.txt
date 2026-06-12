@@ -23,9 +23,11 @@ Verification of the JWT is handled by either:
 * a shared secret key
 * retrieving a JSON Web Key Set (JWKS) from a configured URL
 
-During the login process if the user does not exist an account will be created with a matching role from the JWT.
+During the login process if the user does not exist an account will be created with a matching role from the JWT, unless automatic user creation has been disabled in the plugin settings.
 
 If the JWT did not contain a role claim then user is created with the role set in the plugin settings (by default this is the subscriber role).
+
+Automatic user creation is enabled by default for backwards compatibility. It can be disabled when user provisioning should remain manual.
 
 == Frequently Asked Questions ==
 
