@@ -141,6 +141,17 @@ class AhJwtAuthAdmin {
 
 		register_setting(
 			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-audience',
+			array(
+				'type' => 'string',
+				'show_in_rest' => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'default' => '',
+			),
+		);
+
+		register_setting(
+			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-user-role',
 			array(
 				'type' => 'string',
@@ -188,6 +199,21 @@ class AhJwtAuthAdmin {
 					'text',
 					__( 'Enter the HTTP header that contains the JWT.', 'ah-jwt-auth' ),
 					__( 'The JWT will be retrieved from the specified HTTP header. This defaults to the "Authorization" header.', 'ah-jwt-auth' ),
+				);
+			},
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-sign-in-widget-options-section',
+		);
+
+		add_settings_field(
+			'ahjwtauth-audience',
+			'JWT Audience',
+			function() {
+				$this->options_page_text_input_action(
+					'ahjwtauth-audience',
+					'text',
+					__( 'Enter the expected aud claim value.', 'ah-jwt-auth' ),
+					__( 'If set, incoming JWTs must include a matching aud claim. Leave empty to disable audience validation.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',

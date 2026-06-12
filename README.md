@@ -10,11 +10,13 @@ This plugin assumes that it can retrieve a valid JWT from a configured HTTP head
 
 * The plugin retrieves the user id (email) from the JWT and then checks if such a user exists. If not, the plugin creates a new user by using this email and signs him/her in.
 * If a `role` claim is included in the JWT this will be assigned to the user.
+* If a JWT audience is configured in the plugin settings, the JWT must include a matching `aud` claim.
 * The plugin expects the JWT is passed as a HTTP header (default is `Authorization`). For example, the payload of JWT may look like:  
 
 ```json
 {
   "email": "admin@example.com",
+  "aud": "example-oauth-client-id",
   "role": "admin"
 }
 ```

@@ -18,6 +18,8 @@ that sits in front of your WordPress deployment.
 
 Authentication and optionally role assignment is handled by claims contained in the JWT.
 
+If configured, the plugin also validates the JWT `aud` claim against the expected OAuth2 application audience value.
+
 Verification of the JWT is handled by either:
 
 * a shared secret key
@@ -44,8 +46,11 @@ The JWT must contain at least an `email` claim and may also contain a `role` cla
 
     {
         "email": "admin@example.com",
+        "aud": "example-oauth-client-id",
         "role": "admin"
     }
+
+The `aud` claim is only required when a JWT Audience value has been configured in the plugin settings.
 
 = What signature algorimths are supported to verify the JWT? =
 

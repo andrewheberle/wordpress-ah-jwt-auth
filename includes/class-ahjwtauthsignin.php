@@ -249,7 +249,48 @@ class AhJwtAuthSignIn {
 		} catch ( Exception $e ) {
 			return false;
 		}
+		if ( ! $this->validate_audience( $payload ) ) {
+			return false;
+		}
 		return $payload;
+	}
+
+	/**
+	 * Validates the JWT audience claim against the configured audience value.
+	 *
+	 * If no audience value has been configured, audience validation is skipped
+	 * to maintain backwards compatibility with existing installations.
+	 *
+	 * @param object $payload the payload from the JWT.
+	 * @return bool true if the audience is valid or validation is disabled
+	 */
+	private function validate_audience( $payload ) {
+		$expected_audience = trim( get_option( 'ahjwtauth-audience', '' ) );
+		if ( '' === $expected_audience ) {
+			return true;
+		}
+
+		if ( ! isset( $payload->aud ) ) {
+			$this->error = __( 'AH JWT Auth: The JWT does not contain the required aud claim.', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The JWT does not contain the required aud claim.' );
+			return false;
+		}
+
+		if ( is_string( $payload->aud ) && hash_equals( $expected_audience, $payload->aud ) ) {
+			return true;
+		}
+
+		if ( is_array( $payload->aud ) ) {
+			foreach ( $payload->aud as $audience ) {
+				if ( is_string( $audience ) && hash_equals( $expected_audience, $audience ) ) {
+					return true;
+				}
+			}
+		}
+
+		$this->error = __( 'AH JWT Auth: The JWT aud claim does not match the configured audience.', 'ah-jwt-auth' );
+		error_log( 'AH JWT Auth: ERROR: The JWT aud claim does not match the configured audience.' );
+		return false;
 	}
 
 	/**
