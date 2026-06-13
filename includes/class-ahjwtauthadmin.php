@@ -99,6 +99,27 @@ class AhJwtAuthAdmin {
 	}
 
 	/**
+	 * Displays a checkbox input field on the options page
+	 *
+	 * @param string $option_name the name of the plugin option.
+	 * @param string $label the label displayed next to the checkbox.
+	 * @param string $description description to display under option.
+	 * @return void
+	 */
+	public function options_page_checkbox_input_action( $option_name, $label, $description = false ) {
+		$option_value = get_option( $option_name, '0' );
+		printf(
+			'<input type="hidden" name="%1$s" value="0" /><label for="%1$s"><input type="checkbox" id="%1$s" name="%1$s" value="1" %2$s /> %3$s</label>',
+			esc_attr( $option_name ),
+			checked( '1', $option_value, false ),
+			esc_html( $label )
+		);
+		if ( false !== $description ) {
+			echo '<p class="description">' . esc_html( $description ) . '</p>';
+		}
+	}
+
+	/**
 	 * Sets up actions for plugin settings
 	 *
 	 * @return void
@@ -146,6 +167,19 @@ class AhJwtAuthAdmin {
 				'type' => 'string',
 				'show_in_rest' => true,
 				'default' => 'subscriber'
+			),
+		);
+
+		register_setting(
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-disable-user-creation',
+			array(
+				'type' => 'string',
+				'show_in_rest' => true,
+				'default' => '0',
+				'sanitize_callback' => function( $value ) {
+					return '1' === $value ? '1' : '0';
+				},
 			),
 		);
 
@@ -201,6 +235,20 @@ class AhJwtAuthAdmin {
 				$this->options_page_select_input_action(
 					'ahjwtauth-user-role',
 					__( 'Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
+				);
+			},
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-sign-in-widget-options-section',
+		);
+
+		add_settings_field(
+			'ahjwtauth-disable-user-creation',
+			'Automatic User Creation',
+			function() {
+				$this->options_page_checkbox_input_action(
+					'ahjwtauth-disable-user-creation',
+					__( 'Disable automatic user creation', 'ah-jwt-auth' ),
+					__( 'Require users to be manually provisioned before they can sign in with a valid JWT.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',

@@ -8,7 +8,7 @@ This plugin assumes that it can retrieve a valid JWT from a configured HTTP head
 
 ## How it works
 
-* The plugin retrieves the user id (email) from the JWT and then checks if such a user exists. If not, the plugin creates a new user by using this email and signs him/her in.
+* The plugin retrieves the user id (email) from the JWT and then checks if such a user exists. If not, the plugin creates a new user by using this email and signs him/her in, unless automatic user creation has been disabled in the plugin settings.
 * If a `role` claim is included in the JWT this will be assigned to the user.
 * The plugin expects the JWT is passed as a HTTP header (default is `Authorization`). For example, the payload of JWT may look like:  
 
@@ -26,6 +26,8 @@ Users are created with a random password (64 characters long), which effectively
 During the creation process the user is assigned the configured default role or the role from the "role" claim in the JWT if it was included.
 
 In addition the SSO process will set an existing users role to match the "role" claim in the JWT if it was present.
+
+Automatic user creation can be disabled in the plugin settings. When disabled, a valid JWT only signs in users that already exist in WordPress.
 
 ## Credits
 

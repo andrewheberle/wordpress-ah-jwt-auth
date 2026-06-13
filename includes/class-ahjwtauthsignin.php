@@ -76,6 +76,12 @@ class AhJwtAuthSignIn {
 		$user = get_user_by( 'email', $email );
 
 		if ( ! $user ) {
+			if ( '1' === get_option( 'ahjwtauth-disable-user-creation', '0' ) ) {
+				$this->error = __( 'AH JWT Auth found a valid JWT, but the user does not exist and automatic user creation is disabled.', 'ah-jwt-auth' );
+				error_log( 'AH JWT Auth: ERROR: valid JWT found, but user does not exist and automatic user creation is disabled.' );
+				return;
+			}
+
 			$random_password = wp_generate_password( 64, false );
 			$user_id = wp_create_user( $email, $random_password, $email );
 			$user = get_user_by( 'id', $user_id );
