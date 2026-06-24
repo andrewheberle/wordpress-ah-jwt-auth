@@ -1,5 +1,11 @@
 {
     "require": {
         "firebase/php-jwt": "^6.2"
+    },
+    "scripts": {
+        "test": "php tests/run-kahlan.php"
+    },
+    "require-dev": {
+        "kahlan/kahlan": "^5.2"
     }
 }
