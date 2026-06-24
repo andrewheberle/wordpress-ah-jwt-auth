@@ -155,8 +155,8 @@ class Group extends Block
      */
     public function partition($index, $total)
     {
-        $index = (integer) $index;
-        $total = (integer) $total;
+        $index = (int) $index;
+        $total = (int) $total;
         if (!$index || !$total || $index > $total) {
             throw new Exception("Invalid partition parameters: {$index}/{$total}");
         }
@@ -215,7 +215,7 @@ class Group extends Block
     {
         $suite = $this->suite();
         $parent = $this;
-        $timeout = $timeout ?? $this->timeout();
+        $timeout ??= $this->timeout();
         $group = new Group(compact('message', 'closure', 'suite', 'parent', 'timeout', 'type'));
 
         return $this->_children[] = $group;
@@ -249,7 +249,7 @@ class Group extends Block
     {
         $suite = $this->suite();
         $parent = $this;
-        $timeout = $timeout ?? $this->timeout();
+        $timeout ??= $this->timeout();
         $spec = new Specification(compact('message', 'closure', 'suite', 'parent', 'timeout', 'type'));
         $this->_children[] = $spec;
 

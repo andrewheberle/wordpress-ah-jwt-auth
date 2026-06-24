@@ -6,6 +6,6 @@
         "test": "php tests/run-kahlan.php"
     },
     "require-dev": {
-        "kahlan/kahlan": "^5.2"
+        "kahlan/kahlan": "^6.0"
     }
 }
