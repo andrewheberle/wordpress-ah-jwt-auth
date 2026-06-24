@@ -6,7 +6,15 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
 {
+    public static $files = array (
+        '337663d83d8353cc8c7847676b3b0937' => __DIR__ . '/..' . '/kahlan/kahlan/src/functions.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
+        'K' => 
+        array (
+            'Kahlan\\' => 7,
+        ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
@@ -14,6 +22,10 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
     );
 
     public static $prefixDirsPsr4 = array (
+        'Kahlan\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/kahlan/kahlan/src',
+        ),
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',

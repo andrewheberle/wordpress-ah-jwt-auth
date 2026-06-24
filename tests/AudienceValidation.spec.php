@@ -15,7 +15,7 @@ function verify_token_for_test( $configured_audience, $payload, $configured_key 
 	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-private-secret'] = $configured_key;
 	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-jwks-url'] = '';
 
-	$jwt = JWT::encode( $payload, null === $signing_key ? $configured_key : $signing_key, $algorithm );
+	$jwt = JWT::encode( $payload, null === $signing_key ? str_pad( $configured_key, 32, "\0" ) : $signing_key, $algorithm );
 
 	$reflection = new ReflectionClass( AhJwtAuthSignIn::class );
 	$sign_in = $reflection->newInstanceWithoutConstructor();
@@ -184,7 +184,7 @@ describe(
 						'email' => 'admin@example.com',
 						'aud' => 'oauth-client-id',
 					),
-					'wrong-secret',
+					str_pad( 'wrong-secret', 32, "\0" ),
 					'HS256'
 				);
 
