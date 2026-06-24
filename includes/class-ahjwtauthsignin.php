@@ -398,7 +398,7 @@ class AhJwtAuthSignIn {
 			$public_key = @openssl_pkey_get_public( $key_material );
 			if ( false !== $public_key ) {
 				if ( is_resource( $public_key ) ) {
-					openssl_pkey_free( $public_key );
+					openssl_free_key( $public_key );
 				}
 				return true;
 			}
