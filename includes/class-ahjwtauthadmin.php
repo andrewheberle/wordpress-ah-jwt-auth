@@ -51,7 +51,7 @@ class AhJwtAuthAdmin {
 	 */
 	public function options_page_action() {
 		if ( current_user_can( 'manage_options' ) ) {
-			include( plugin_dir_path( __FILE__ ) . '../templates/options-form.php' );
+			include plugin_dir_path( __FILE__ ) . '../templates/options-form.php';
 		} else {
 			wp_die( 'You do not have sufficient permissions to access this page.' );
 		}
