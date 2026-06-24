@@ -177,7 +177,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
-				'default' => 'subscriber'
+				'default' => 'subscriber',
 			),
 		);
 
@@ -188,7 +188,7 @@ class AhJwtAuthAdmin {
 				'type' => 'string',
 				'show_in_rest' => true,
 				'default' => '0',
-				'sanitize_callback' => function( $value ) {
+				'sanitize_callback' => function ( $value ) {
 					return '1' === $value ? '1' : '0';
 				},
 			),
@@ -197,7 +197,7 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-private-secret',
 			'JWT Private Secret',
-			function() {
+			function () {
 				$this->options_page_text_input_action(
 					'ahjwtauth-private-secret',
 					'text',
@@ -212,7 +212,7 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-jwks-url',
 			'JWKS URL',
-			function() {
+			function () {
 				$this->options_page_text_input_action(
 					'ahjwtauth-jwks-url',
 					'text',
@@ -227,7 +227,7 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-jwt-header',
 			'JWT Header',
-			function() {
+			function () {
 				$this->options_page_text_input_action(
 					'ahjwtauth-jwt-header',
 					'text',
@@ -242,7 +242,7 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-audience',
 			'JWT Audience',
-			function() {
+			function () {
 				$this->options_page_text_input_action(
 					'ahjwtauth-audience',
 					'text',
@@ -257,7 +257,7 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-user-role',
 			'Default User Role',
-			function() {
+			function () {
 				$this->options_page_select_input_action(
 					'ahjwtauth-user-role',
 					__( 'Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
@@ -270,7 +270,7 @@ class AhJwtAuthAdmin {
 		add_settings_field(
 			'ahjwtauth-disable-user-creation',
 			'Automatic User Creation',
-			function() {
+			function () {
 				$this->options_page_checkbox_input_action(
 					'ahjwtauth-disable-user-creation',
 					__( 'Disable automatic user creation', 'ah-jwt-auth' ),
