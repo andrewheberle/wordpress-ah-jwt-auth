@@ -3,7 +3,7 @@ Contributors: andrewheberle
 Donate link: https://paypal.me/andrewheberle
 Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
-Tested up to: 6.7.2
+Tested up to: 6.9.4
 Stable tag: 1.5.4
 Requires PHP: 7.0
 License: GPLv3 or later
@@ -63,6 +63,10 @@ Currently only the HS256 and RS256 alorithms are supported.
 1. This example shows a configuration with a WordPress install behind Cloudflare Access for SSO via JWT
 
 == Changelog ==
+
+= 1.6.0 =
+* Added option to verify JWT Audience (AUD)
+* Added option to disable automatic user creation
 
 = 1.5.4 =
 * Fix bug that meant role was not being set based on selection
