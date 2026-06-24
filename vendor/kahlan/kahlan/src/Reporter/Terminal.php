@@ -106,8 +106,8 @@ class Terminal extends Reporter
         $this->colors($config['colors']);
 
         if (!$this->colors() && getenv('ComSpec')) {
-            $this->_symbols['ok'] = "\xFB";
-            $this->_symbols['err'] = "\x78";
+            $this->_symbols['ok'] = "\xE2\x9C\x93";
+            $this->_symbols['err'] = "\xE2\x9C\x96";
             $this->_symbols['dot'] = '.';
         }
 
@@ -364,9 +364,7 @@ EOD;
                 $this->write("{$key}:\n", 'yellow');
             }
             $type = gettype($value);
-            $toString = function ($instance) {
-                return 'an instance of `' . get_class($instance) . '`';
-            };
+            $toString = (fn($instance) => 'an instance of `' . get_class($instance) . '`');
             $this->write("({$type}) " . Text::toString($value, ['object' => ['method' => $toString]]));
             $this->prefix('');
             $this->write("\n");

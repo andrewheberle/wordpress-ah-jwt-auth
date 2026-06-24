@@ -2,6 +2,8 @@
 namespace Kahlan\Analysis;
 
 use ReflectionClass;
+use ReflectionIntersectionType;
+use ReflectionNamedType;
 use ReflectionUnionType;
 
 class Inspector
@@ -77,6 +79,18 @@ class Inspector
                 }
                 return join('|', $result);
             }
+            if ($type instanceof ReflectionIntersectionType) {
+                $result = [];
+                foreach ($type->getTypes() as $t) {
+                    if (! $t instanceof ReflectionNamedType) {
+                        $result[] = (string) $t;
+                        continue;
+                    }
+
+                    $result[] = ($t->isBuiltin() ? '' : '\\') . $t->getName();
+                }
+                return join('&', $result);
+            }
             $allowsNull = $type->getName() !== 'mixed' && $type->allowsNull() ? '?' : '';
             return $allowsNull . ($type->isBuiltin() ? '' : '\\') . $type->getName();
         } elseif (preg_match('/.*?\[ \<[^\>]+\> (?:HH\\\)?(\w+)(.*?)\$/', (string) $parameter, $match)) {
@@ -109,6 +123,13 @@ class Inspector
                 $result[] = static::returnTypehint($t);
             }
             return join('|', $result);
+        }
+        if ($type instanceof ReflectionIntersectionType) {
+            $result = [];
+            foreach ($type->getTypes() as $t) {
+                $result[] = static::returnTypehint($t);
+            }
+            return join('&', $result);
         }
         $allowsNull = $type->getName() !== 'mixed' && $type->allowsNull() ? '?' : '';
         $isBuiltin = $type->isBuiltin() || in_array($type->getName(), [ 'self', 'static' ], true);

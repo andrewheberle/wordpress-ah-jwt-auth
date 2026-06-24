@@ -23,7 +23,7 @@ namespace Kahlan\Cli {
 
     class Kahlan
     {
-        public const VERSION = '5.2.8';
+        public const VERSION = '6.0.2';
 
         /**
          * Starting time.
@@ -115,16 +115,12 @@ namespace Kahlan\Cli {
             $commandLine->option('include',   [
                 'array' => true,
                 'default' => ['*'],
-                'value' => function ($value) {
-                    return array_filter($value);
-                }
+                'value' => fn($value) => array_filter($value)
             ]);
             $commandLine->option('exclude',    [
                 'array' => true,
                 'default' => [],
-                'value' => function ($value) {
-                    return array_filter($value);
-                }
+                'value' => fn($value) => array_filter($value)
             ]);
             $commandLine->option('persistent', ['type'  => 'boolean', 'default' => true]);
             $commandLine->option('autoclear',  ['array' => true, 'default' => [
@@ -574,14 +570,12 @@ EOD;
          */
         protected function _run()
         {
-            return Filters::run($this, 'run', [], function ($chain) {
-                return $this->suite()->run([
-                    'reporters' => $this->reporters(),
-                    'autoclear' => $this->commandLine()->get('autoclear'),
-                    'part'      => trim($this->commandLine()->get('part')),
-                    'ff'        => $this->commandLine()->get('ff')
-                ]);
-            });
+            return Filters::run($this, 'run', [], fn($chain) => $this->suite()->run([
+                'reporters' => $this->reporters(),
+                'autoclear' => $this->commandLine()->get('autoclear'),
+                'part'      => trim($this->commandLine()->get('part')),
+                'ff'        => $this->commandLine()->get('ff')
+            ]));
         }
 
         /**
@@ -794,6 +788,15 @@ namespace {
             }
         } else {
             $exit('skipIf');
+        }
+        if (!function_exists('skipIfWindows')) {
+            function skipIfWindows()
+            {
+                $current = Suite::current();
+                $current->skipIf(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+            }
+        } else {
+            $exit('skipIfWindows');
         }
         if (!function_exists('expect')) {
             /**

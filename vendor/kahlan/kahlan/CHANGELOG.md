@@ -2,6 +2,26 @@
 
 ## Last changes
 
+## 6.1.0 (2026-01-24)
+
+  * **Enhancement:** Add PHP 8.5 support
+
+## 6.0.2 (2025-02-22)
+
+  * **Bugfix:** Fix run on windows: directory separator, ✓ and ✖ char
+  * **Bugfix:** Fix run on windows: directory separator usage in regex in Text.spec.php
+  * **Change:** [DX] Add skipIfWindows() function for shortcut to skip on windows
+
+## 6.0.1 (2025-01-27)
+
+  * **Bugfix:** Fix deprecation warning in Coverage
+
+## 6.0.0 (2024-12-26)
+
+  * **Enhancement:** Add OS matrix to the CI build
+  * **Enhancement:** Bump requirement to php 7.4
+  * **Enhancement:** Add PHP 8.4 support
+
 ## 5.2.8 (2024-10-19)
 
   * **Bugfix:** Fix installation on system without ext-zip

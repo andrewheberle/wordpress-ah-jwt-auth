@@ -69,7 +69,7 @@ class Coverage extends Terminal
         $config += $defaults;
 
         $verbosity = $config['verbosity'];
-        $this->_verbosity  = is_numeric($verbosity) ? (integer) $verbosity : (string) $verbosity;
+        $this->_verbosity  = is_numeric($verbosity) ? (int) $verbosity : (string) $verbosity;
 
         if (is_string($this->_verbosity)) {
             $class = preg_replace('/(::)?\w+\(\)$/', '', $this->_verbosity);
@@ -341,7 +341,7 @@ class Coverage extends Terminal
             }
 
             for ($i = $start; $i <= $stop; $i++) {
-                $value = $coverage[$i] ?? null;
+                $value = $coverage[$i] ?? '';
                 $line = str_pad($i + 1, 6, ' ', STR_PAD_LEFT);
                 $line .= ':' . str_pad($value, 6, ' ');
                 $line .= $lines[$i];
