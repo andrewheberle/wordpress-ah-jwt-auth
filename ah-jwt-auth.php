@@ -16,7 +16,7 @@
  * Author URI: https://github.com/andrewheberle/wordpress-ah-jwt-auth/
  * License: GPL v3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * 
+ *
  * Copyright (C) 2021-2026  Andrew Heberle
  *
  * This program is free software: you can redistribute it and/or modify
