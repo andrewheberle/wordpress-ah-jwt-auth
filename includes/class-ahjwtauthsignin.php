@@ -348,8 +348,7 @@ class AhJwtAuthSignIn {
 			return $keys;
 		}
 
-		$secret = get_option( 'ahjwtauth-private-secret' );
-		return new Key( $secret, $this->get_alg() );
+		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
 	}
 
 	/**
@@ -396,14 +395,7 @@ class AhJwtAuthSignIn {
 
 		if ( function_exists( 'openssl_pkey_get_public' ) ) {
 			$public_key = @openssl_pkey_get_public( $key_material );
-			if ( false !== $public_key ) {
-				if ( is_resource( $public_key ) ) {
-					openssl_free_key( $public_key );
-				}
-				return true;
-			}
-
-			return false;
+			return false !== $public_key;
 		}
 
 		return 1 === preg_match( '/-----BEGIN (PUBLIC KEY|RSA PUBLIC KEY|CERTIFICATE)-----/', $key_material );
