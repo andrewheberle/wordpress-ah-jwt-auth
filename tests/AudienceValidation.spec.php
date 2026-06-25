@@ -10,7 +10,7 @@ declare(strict_types=1);
 use AhJwtAuth\AhJwtAuthSignIn;
 use Firebase\JWT\JWT;
 
-function verify_token_for_test( $configured_audience, $payload, $configured_key = 'test-secret', $signing_key = null, $algorithm = 'HS256' ) {
+function verify_token_for_test( $configured_audience, $payload, $configured_key = 'a-test-secret-at-least-256-bits-long', $signing_key = null, $algorithm = 'HS256' ) {
 	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-audience'] = $configured_audience;
 	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-private-secret'] = $configured_key;
 	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-jwks-url'] = '';
@@ -184,7 +184,7 @@ describe(
 						'email' => 'admin@example.com',
 						'aud' => 'oauth-client-id',
 					),
-					str_pad( 'wrong-secret', 32, "\0" ),
+					'the-wrong-secret-at-least-256-bits-long',
 					'HS256'
 				);
 
