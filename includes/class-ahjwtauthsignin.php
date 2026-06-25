@@ -348,8 +348,7 @@ class AhJwtAuthSignIn {
 			return $keys;
 		}
 
-		// otherwise use shared secret (padded based on https://github.com/googleapis/php-jwt/pull/613#issuecomment-3724126015).
-		$secret = str_pad( get_option( 'ahjwtauth-private-secret' ), 32, "\0" );
+		$secret = get_option( 'ahjwtauth-private-secret' );
 		return new Key( $secret, $this->get_alg() );
 	}
 
