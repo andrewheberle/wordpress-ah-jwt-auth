@@ -5,7 +5,7 @@ Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
 Tested up to: 6.9.4
 Stable tag: 1.6.0
-Requires PHP: 7.0
+Requires PHP: 8.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -22,8 +22,9 @@ If configured, the plugin also validates the JWT `aud` claim against the expecte
 
 Verification of the JWT is handled by either:
 
-* a shared secret key
-* retrieving a JSON Web Key Set (JWKS) from a configured URL
+* a shared secret for HS256 (as per RFC 7518 this must be at least 256-bits in size)
+* a PEM encoded public key for RS256
+* retrieving a JSON Web Key Set (JWKS) from a configured URL (also for RS256)
 
 During the login process if the user does not exist an account will be created with a matching role from the JWT, unless automatic user creation has been disabled in the plugin settings.
 
@@ -63,6 +64,9 @@ Currently only the HS256 and RS256 alorithms are supported.
 1. This example shows a configuration with a WordPress install behind Cloudflare Access for SSO via JWT
 
 == Changelog ==
+
+= 2.0.0 =
+* **Breaking Change:** Any secrets that are less than 256-bytes (32-characters) in length will fail JWT HS256 verification
 
 = 1.6.0 =
 * Added option to verify JWT Audience (AUD)
