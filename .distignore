@@ -1,9 +1,9 @@
-/.wordpress-org
-/.git
-/.github
-/tests
-/kahlan-config.php
-
 .distignore
+.git
+.github
 .gitignore
+.wordpress-org
+kahlan-config.php
+README.md
+tests
 renovate.json
