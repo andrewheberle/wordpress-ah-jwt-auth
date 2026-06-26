@@ -12,9 +12,12 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
-          artifact-name: ah-jwt-auth-sbom.spdx.json
+          output-file: sbom.spdx.json
+          dependency-snapshot: true
       - uses: actions/attest@v4
         with:
-          sbom-path: ah-jwt-auth-sbom.spdx.json
+          subject-path: sbom.spdx.json
+          sbom-path: sbom.spdx.json
