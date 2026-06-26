@@ -83,6 +83,9 @@ Currently only the HS256 and RS256 algorithms are supported.
 
 == Changelog ==
 
+= 2.3.0 =
+* Replace JWKS caching process
+
 = 2.2.0 =
 * Spelling fixes and hardening
 * Add option to enforce JWT auth (ie "fail-closed") rather than falling
