@@ -64,7 +64,7 @@ class AhJwtAuthSignIn {
 		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
 
 		add_action( 'admin_notices', array( $this, 'ahjwtauth_admin_notice' ) );
-		add_action( 'login_head', array( $this, 'ahjwtauth_log_user_in' ) );
+		add_action( 'init', array( $this, 'ahjwtauth_log_user_in' ) );
 		add_action( 'admin_init', array( $this, 'ahjwtauth_schedule_fetch_jwks' ) );
 		add_action( 'ahjwtauth_fetch_jwks', array( $this, 'ahjwtauth_fetch_jwks' ) );
 	}
@@ -83,20 +83,57 @@ class AhJwtAuthSignIn {
 			return;
 		}
 
+		// Allow background tasks (WP-Cron, WP-CLI) to bypass JWT checks.
+		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			return;
+		}
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return;
+		}
+
+		$fail_closed = '1' === get_option( 'ahjwtauth-fail-closed', '0' );
+
 		// get jwt.
 		$jwt = $this->get_token();
 		if ( false === $jwt ) {
+			// If Fail-Closed is enabled, enforce the token requirement strictly.
+			if ( $fail_closed ) {
+				wp_die( 
+					esc_html__( 'Access Denied: This site requires a valid JWT.', 'ah-jwt-auth' ), 
+					esc_html__( 'JWT Authentication Required', 'ah-jwt-auth' ), 
+					array( 'response' => 401 ) 
+				);
+			}
+
 			return;
 		}
 
 		// verify JWT and grab payload.
 		$payload = $this->verify_token( $jwt );
 		if ( false === $payload ) {
+			// Check if the administrator explicitly enabled Fail-Closed enforcement.
+			if ( $fail_closed ) {
+				wp_die( 
+					esc_html__( 'Authentication failed: The provided JWT is invalid or expired.', 'ah-jwt-auth' ), 
+					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ), 
+					array( 'response' => 401 ) 
+				);
+			}
+			
 			return;
 		}
 
 		// If we cannot extract the user's email from header this is an error.
 		if ( ! isset( $payload->email ) ) {
+			// Check if the administrator explicitly enabled Fail-Closed enforcement.
+			if ( $fail_closed ) {
+				wp_die( 
+					esc_html__( 'Authentication failed: The provided JWT did not include an email claim.', 'ah-jwt-auth' ), 
+					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ), 
+					array( 'response' => 401 ) 
+				);
+			}
+			
 			$this->error = __( 'AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth' );
 			return;
 		}
@@ -106,6 +143,15 @@ class AhJwtAuthSignIn {
 
 		if ( ! $user ) {
 			if ( '1' === get_option( 'ahjwtauth-disable-user-creation', '0' ) ) {
+				// Check if the administrator explicitly enabled Fail-Closed enforcement.
+				if ( $fail_closed ) {
+					wp_die( 
+						esc_html__( 'Authentication failed: No account exists for this JWT.', 'ah-jwt-auth' ), 
+						esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ), 
+						array( 'response' => 401 ) 
+					);
+				}
+				
 				$this->error = __( 'AH JWT Auth found a valid JWT, but the user does not exist and automatic user creation is disabled.', 'ah-jwt-auth' );
 				error_log( 'AH JWT Auth: ERROR: valid JWT found, but user does not exist and automatic user creation is disabled.' );
 				return;
@@ -140,6 +186,7 @@ class AhJwtAuthSignIn {
 			$redirect_url = admin_url();
 		}
 		$redirect_to = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : $redirect_url;
+
 		wp_safe_redirect( $redirect_to );
 		exit;
 	}
@@ -152,16 +199,19 @@ class AhJwtAuthSignIn {
 	 * @return void
 	 */
 	public function ahjwtauth_admin_notice() {
-		if ( isset( $this->error ) ) {
-			$class = 'notice notice-error';
-			$message = $this->error;
-			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
-		}
+		// Only print admin notices to administrative users.
+		if ( current_user_can( 'manage_options' ) ) {
+			if ( isset( $this->error ) ) {
+				$class = 'notice notice-error';
+				$message = $this->error;
+				printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+			}
 
-		if ( isset( $this->warning ) ) {
-			$class = 'notice notice-warning is-dismissible';
-			$message = $this->warning;
-			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+			if ( isset( $this->warning ) ) {
+				$class = 'notice notice-warning is-dismissible';
+				$message = $this->warning;
+				printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+			}
 		}
 	}
 
@@ -248,15 +298,18 @@ class AhJwtAuthSignIn {
 	 * @return string the payload from the JWT
 	 */
 	private function get_token() {
-		$jwt_header = $this->get_header();
-		if ( ! isset( $_SERVER[ $jwt_header ] ) ) {
-			$this->warning = __( 'AH JWT Auth the expected JWT was not found. Please double check your reverse proxy configuration.', 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: WARNING: the expected JWT was not found. Please double check your reverse proxy configuration.' );
+		$request_headers = getallheaders();
+		$normalized_headers = array_change_key_case( $request_headers, CASE_LOWER );
+		$target_header = strtolower( get_option( 'ahjwtauth-jwt-header', 'Authorization' ) );
+		
+		if ( ! isset( $normalized_headers[ $target_header ] ) ) {
+			$this->warning = __( 'AH JWT Auth: The expected JWT was not found. Please double check your reverse proxy configuration.', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: WARNING: The expected JWT was not found.' );
 			return false;
 		}
 
-		// Handle "Header: Bearer <JWT>" form by stripping the "Bearer " prefix.
-		$array = explode( ' ', wp_unslash( $_SERVER[ $jwt_header ] ) );
+		$raw_header_value = wp_unslash( $normalized_headers[ $target_header ] );
+		$array = explode( ' ', $raw_header_value );
 		if ( 'Bearer' === $array[0] ) {
 			array_shift( $array );
 		}
@@ -395,30 +448,23 @@ class AhJwtAuthSignIn {
 		if ( '' !== $jwks_url ) {
 			$jwks = $this->ahjwtauth_fetch_jwks();
 
+			if ( ! is_array( $jwks ) || ! isset( $jwks['keys'] ) ) {
+				$this->error = __( 'AH JWT Auth: Invalid or missing keys in JWKS response.', 'ah-jwt-auth' );
+				error_log( 'AH JWT Auth: ERROR: Invalid or missing keys in JWKS response.' );
+				return false;
+			}
+
 			try {
 				$keys = JWK::parseKeySet( array( 'keys' => $jwks['keys'] ) );
+				return $keys;
 			} catch ( Exception $e ) {
 				$this->error = $e->getMessage();
 				error_log( 'AH JWT Auth: ERROR: Problem parsing key-set: ' . $e->getMessage() );
 				return false;
 			}
-
-			return $keys;
 		}
 
 		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
-	}
-
-	/**
-	 * Returns a header in "HTTP" form into a form usable with $_SERVER['HEADER']
-	 *
-	 * The returned string is done by converting the configured setting to uppercase,
-	 * replacing "-" with "_" and adding the prefix of "HTTP_".
-	 *
-	 * @return string the header name usable with _$SERVER
-	 */
-	private function get_header() {
-		return 'HTTP_' . str_replace( '-', '_', strtoupper( get_option( 'ahjwtauth-jwt-header' ) ) );
 	}
 
 	/**
