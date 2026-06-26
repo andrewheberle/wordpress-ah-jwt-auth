@@ -36,7 +36,7 @@
 namespace AhJwtAuth;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
