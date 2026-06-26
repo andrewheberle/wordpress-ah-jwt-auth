@@ -119,7 +119,7 @@ class AhJwtAuthSignIn {
 					array( 'response' => 401 )
 				);
 			}
-			
+
 			return;
 		}
 
@@ -133,7 +133,7 @@ class AhJwtAuthSignIn {
 					array( 'response' => 401 )
 				);
 			}
-			
+
 			$this->error = __( 'AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth' );
 			return;
 		}
@@ -151,7 +151,7 @@ class AhJwtAuthSignIn {
 						array( 'response' => 401 )
 					);
 				}
-				
+
 				$this->error = __( 'AH JWT Auth found a valid JWT, but the user does not exist and automatic user creation is disabled.', 'ah-jwt-auth' );
 				error_log( 'AH JWT Auth: ERROR: valid JWT found, but user does not exist and automatic user creation is disabled.' );
 				return;
