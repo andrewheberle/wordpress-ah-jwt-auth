@@ -6,7 +6,9 @@ permissions:
   attestations: write
   artifact-metadata: write
 
-on: release
+on:
+  release:
+    types: [ published ]
 
 jobs:
   sbom:
