@@ -10,9 +10,13 @@
 
 namespace AhJwtAuth;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  *
- * This class handles the settings/admin sie of the plugin to
+ * This class handles the settings/admin side of the plugin to
  * allow configuration of the plugin.
  *
  * @category Class
@@ -36,8 +40,8 @@ class AhJwtAuthAdmin {
 	 */
 	public function options_menu_action() {
 		add_options_page(
-			'AH JWT Auth Options',
-			'AH JWT Auth',
+			__( 'AH JWT Auth Options', 'ah-jwt-auth' ),
+			__( 'AH JWT Auth', 'ah-jwt-auth' ),
 			'manage_options',
 			'ahjwtauth-sign-in-widget',
 			array( $this, 'options_page_action' )
@@ -53,7 +57,7 @@ class AhJwtAuthAdmin {
 		if ( current_user_can( 'manage_options' ) ) {
 			include plugin_dir_path( __FILE__ ) . '../templates/options-form.php';
 		} else {
-			wp_die( 'You do not have sufficient permissions to access this page.' );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'ah-jwt-auth' ) );
 		}
 	}
 
@@ -138,6 +142,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => false,
+				'sanitize_callback' => 'sanitize_textarea_field',
 			),
 		);
 
@@ -147,6 +152,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
+				'sanitize_callback' => 'esc_url_raw',
 			),
 		);
 
@@ -189,6 +195,13 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
+				'sanitize_callback' => function ( $value ) {
+					$valid_roles = wp_roles()->get_names();
+					if ( array_key_exists( $value, $valid_roles ) ) {
+						return $value;
+					}
+					return 'subscriber';
+				},
 				'default' => 'subscriber',
 			),
 		);
@@ -196,6 +209,19 @@ class AhJwtAuthAdmin {
 		register_setting(
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-disable-user-creation',
+			array(
+				'type' => 'string',
+				'show_in_rest' => true,
+				'default' => '0',
+				'sanitize_callback' => function ( $value ) {
+					return '1' === $value ? '1' : '0';
+				},
+			),
+		);
+
+		register_setting(
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-fail-closed',
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
@@ -229,7 +255,7 @@ class AhJwtAuthAdmin {
 					'ahjwtauth-jwks-url',
 					'text',
 					__( 'Enter the JWKS URL to validate the JWT.', 'ah-jwt-auth' ),
-					__( 'The retreived JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth' ),
+					__( 'The retrieved JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',
@@ -287,7 +313,7 @@ class AhJwtAuthAdmin {
 			function () {
 				$this->options_page_select_input_action(
 					'ahjwtauth-user-role',
-					__( 'Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
+					__( 'Select the role for an auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',
@@ -302,6 +328,20 @@ class AhJwtAuthAdmin {
 					'ahjwtauth-disable-user-creation',
 					__( 'Disable automatic user creation', 'ah-jwt-auth' ),
 					__( 'Require users to be manually provisioned before they can sign in with a valid JWT.', 'ah-jwt-auth' ),
+				);
+			},
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-sign-in-widget-options-section',
+		);
+
+		add_settings_field(
+			'ahjwtauth-fail-closed',
+			'Enforce Strict Auth (Fail-Closed)',
+			function () {
+				$this->options_page_checkbox_input_action(
+					'ahjwtauth-fail-closed',
+					__( 'Enable strict Fail-Closed mode', 'ah-jwt-auth' ),
+					__( 'Require a valid JWT for all unauthenticated traffic. If a token is invalid, expired, or entirely missing, block access immediately.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',
