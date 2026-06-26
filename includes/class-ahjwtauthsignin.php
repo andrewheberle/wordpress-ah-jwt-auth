@@ -11,7 +11,7 @@
 namespace AhJwtAuth;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 use DomainException;
@@ -98,10 +98,10 @@ class AhJwtAuthSignIn {
 		if ( false === $jwt ) {
 			// If Fail-Closed is enabled, enforce the token requirement strictly.
 			if ( $fail_closed ) {
-				wp_die( 
-					esc_html__( 'Access Denied: This site requires a valid JWT.', 'ah-jwt-auth' ), 
-					esc_html__( 'JWT Authentication Required', 'ah-jwt-auth' ), 
-					array( 'response' => 401 ) 
+				wp_die(
+					esc_html__( 'Access Denied: This site requires a valid JWT.', 'ah-jwt-auth' ),
+					esc_html__( 'JWT Authentication Required', 'ah-jwt-auth' ),
+					array( 'response' => 401 )
 				);
 			}
 
@@ -113,10 +113,10 @@ class AhJwtAuthSignIn {
 		if ( false === $payload ) {
 			// Check if the administrator explicitly enabled Fail-Closed enforcement.
 			if ( $fail_closed ) {
-				wp_die( 
-					esc_html__( 'Authentication failed: The provided JWT is invalid or expired.', 'ah-jwt-auth' ), 
-					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ), 
-					array( 'response' => 401 ) 
+				wp_die(
+					esc_html__( 'Authentication failed: The provided JWT is invalid or expired.', 'ah-jwt-auth' ),
+					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ),
+					array( 'response' => 401 )
 				);
 			}
 			
@@ -127,10 +127,10 @@ class AhJwtAuthSignIn {
 		if ( ! isset( $payload->email ) ) {
 			// Check if the administrator explicitly enabled Fail-Closed enforcement.
 			if ( $fail_closed ) {
-				wp_die( 
-					esc_html__( 'Authentication failed: The provided JWT did not include an email claim.', 'ah-jwt-auth' ), 
-					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ), 
-					array( 'response' => 401 ) 
+				wp_die(
+					esc_html__( 'Authentication failed: The provided JWT did not include an email claim.', 'ah-jwt-auth' ),
+					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ),
+					array( 'response' => 401 )
 				);
 			}
 			
@@ -145,10 +145,10 @@ class AhJwtAuthSignIn {
 			if ( '1' === get_option( 'ahjwtauth-disable-user-creation', '0' ) ) {
 				// Check if the administrator explicitly enabled Fail-Closed enforcement.
 				if ( $fail_closed ) {
-					wp_die( 
-						esc_html__( 'Authentication failed: No account exists for this JWT.', 'ah-jwt-auth' ), 
-						esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ), 
-						array( 'response' => 401 ) 
+					wp_die(
+						esc_html__( 'Authentication failed: No account exists for this JWT.', 'ah-jwt-auth' ),
+						esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ),
+						array( 'response' => 401 )
 					);
 				}
 				
@@ -301,7 +301,7 @@ class AhJwtAuthSignIn {
 		$request_headers = getallheaders();
 		$normalized_headers = array_change_key_case( $request_headers, CASE_LOWER );
 		$target_header = strtolower( get_option( 'ahjwtauth-jwt-header', 'Authorization' ) );
-		
+
 		if ( ! isset( $normalized_headers[ $target_header ] ) ) {
 			$this->warning = __( 'AH JWT Auth: The expected JWT was not found. Please double check your reverse proxy configuration.', 'ah-jwt-auth' );
 			error_log( 'AH JWT Auth: WARNING: The expected JWT was not found.' );

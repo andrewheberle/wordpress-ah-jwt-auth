@@ -11,7 +11,7 @@
 namespace AhJwtAuth;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 /**
@@ -57,7 +57,7 @@ class AhJwtAuthAdmin {
 		if ( current_user_can( 'manage_options' ) ) {
 			include plugin_dir_path( __FILE__ ) . '../templates/options-form.php';
 		} else {
-			wp_die( __( 'You do not have sufficient permissions to access this page.', 'ah-jwt-auth' ) );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'ah-jwt-auth' ) );
 		}
 	}
 
@@ -225,7 +225,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
-				'default' => '0', // Default to 0 (Fail-Open) for backwards compatibility
+				'default' => '0',
 				'sanitize_callback' => function ( $value ) {
 					return '1' === $value ? '1' : '0';
 				},
