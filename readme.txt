@@ -83,7 +83,7 @@ Currently only the HS256 and RS256 algorithms are supported.
 == Changelog ==
 
 = 2.2.0 =
-* Fixing of spelling and hardening
+* Spelling fixes and hardening
 * Add option to enforce JWT auth (ie "fail-closed") rather than falling
   through to WordPress authentication.
 
