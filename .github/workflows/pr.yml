@@ -15,6 +15,7 @@ jobs:
         with:
           standard: 'WordPress'
           excludes: tests
+          enable_warnings: true
   tests:
     runs-on: ubuntu-latest
     steps:
