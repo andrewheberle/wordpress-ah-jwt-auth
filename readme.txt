@@ -51,7 +51,7 @@ follows:
     Authorization: Bearer <JWT Here>
 
 However the token may be retrieved from a configurable HTTP header, for example
-integration with Cloudflare Access, which was the original target for this
+to integrate with Cloudflare Access, which was the original target for this
 plugin, you would configure the use of the `Cf-Access-Jwt-Assertion` header.
 
 = What claims should the JWT contain? =
