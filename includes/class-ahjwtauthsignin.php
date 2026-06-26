@@ -395,7 +395,6 @@ class AhJwtAuthSignIn {
 			return $keys;
 		}
 
-		// throw new Exception( get_option( 'ahjwtauth-private-secret' ) );
 		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
 	}
 

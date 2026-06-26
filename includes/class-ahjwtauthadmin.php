@@ -252,11 +252,11 @@ class AhJwtAuthAdmin {
 		);
 
 		add_settings_field(
-			'ahjwtauth-audience',
+			'ahjwtauth-issuer',
 			'JWT Issuer',
 			function () {
 				$this->options_page_text_input_action(
-					'ahjwtauth-audience',
+					'ahjwtauth-issuer',
 					'text',
 					__( 'Enter the expected iss claim value.', 'ah-jwt-auth' ),
 					__( 'If set, incoming JWTs must include a matching iss claim. Leave empty to disable issuer validation.', 'ah-jwt-auth' ),
