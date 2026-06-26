@@ -6,5 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    '24968e62a0fcb2ffa730352582344e04' => $vendorDir . '/art4/requests-psr18-adapter/v1-compat/autoload.php',
     '337663d83d8353cc8c7847676b3b0937' => $vendorDir . '/kahlan/kahlan/src/functions.php',
 );

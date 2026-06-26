@@ -140,8 +140,8 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-private-secret',
 			array(
-				'type' => 'string',
-				'show_in_rest' => false,
+				'type'              => 'string',
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_textarea_field',
 			),
 		);
@@ -150,8 +150,8 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-jwks-url',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
 				'sanitize_callback' => 'esc_url_raw',
 			),
 		);
@@ -160,10 +160,10 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-jwt-header',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
 				'sanitize_callback' => 'sanitize_text_field',
-				'default' => 'Authorization',
+				'default'           => 'Authorization',
 			),
 		);
 
@@ -171,10 +171,10 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-audience',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
 				'sanitize_callback' => 'sanitize_text_field',
-				'default' => '',
+				'default'           => '',
 			),
 		);
 
@@ -182,10 +182,10 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-issuer',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
 				'sanitize_callback' => 'sanitize_text_field',
-				'default' => '',
+				'default'           => '',
 			),
 		);
 
@@ -193,8 +193,8 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-user-role',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
+				'type'              => 'string',
+				'show_in_rest'      => true,
 				'sanitize_callback' => function ( $value ) {
 					$valid_roles = wp_roles()->get_names();
 					if ( array_key_exists( $value, $valid_roles ) ) {
@@ -202,7 +202,7 @@ class AhJwtAuthAdmin {
 					}
 					return 'subscriber';
 				},
-				'default' => 'subscriber',
+				'default'           => 'subscriber',
 			),
 		);
 
@@ -210,9 +210,9 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-disable-user-creation',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
-				'default' => '0',
+				'type'              => 'string',
+				'show_in_rest'      => true,
+				'default'           => '0',
 				'sanitize_callback' => function ( $value ) {
 					return '1' === $value ? '1' : '0';
 				},
@@ -223,9 +223,9 @@ class AhJwtAuthAdmin {
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-fail-closed',
 			array(
-				'type' => 'string',
-				'show_in_rest' => true,
-				'default' => '0',
+				'type'              => 'string',
+				'show_in_rest'      => true,
+				'default'           => '0',
 				'sanitize_callback' => function ( $value ) {
 					return '1' === $value ? '1' : '0';
 				},

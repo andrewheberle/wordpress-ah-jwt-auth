@@ -43,4 +43,14 @@ require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsignin.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthadmin.php';
 
+register_deactivation_hook(
+	__FILE__,
+	function () {
+		$timestamp = wp_next_scheduled( 'ahjwtauth_fetch_jwks' );
+		if ( $timestamp ) {
+			wp_unschedule_event( $timestamp, 'ahjwtauth_fetch_jwks' );
+		}
+	}
+);
+
 new AhJwtAuthSignIn();

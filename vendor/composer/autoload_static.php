@@ -7,10 +7,20 @@ namespace Composer\Autoload;
 class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
 {
     public static $files = array (
+        '24968e62a0fcb2ffa730352582344e04' => __DIR__ . '/..' . '/art4/requests-psr18-adapter/v1-compat/autoload.php',
         '337663d83d8353cc8c7847676b3b0937' => __DIR__ . '/..' . '/kahlan/kahlan/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'P' => 
+        array (
+            'Psr\\Http\\Message\\' => 17,
+            'Psr\\Http\\Client\\' => 16,
+        ),
+        'N' => 
+        array (
+            'Nyholm\\Psr7\\' => 12,
+        ),
         'K' => 
         array (
             'Kahlan\\' => 7,
@@ -19,9 +29,26 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
         array (
             'Firebase\\JWT\\' => 13,
         ),
+        'A' => 
+        array (
+            'Art4\\Requests\\' => 14,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Psr\\Http\\Client\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-client/src',
+        ),
+        'Nyholm\\Psr7\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nyholm/psr7/src',
+        ),
         'Kahlan\\' => 
         array (
             0 => __DIR__ . '/..' . '/kahlan/kahlan/src',
@@ -29,6 +56,10 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
+        'Art4\\Requests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/art4/requests-psr18-adapter/src',
         ),
     );
 

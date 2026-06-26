@@ -6,6 +6,10 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
+    'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
+    'Nyholm\\Psr7\\' => array($vendorDir . '/nyholm/psr7/src'),
     'Kahlan\\' => array($vendorDir . '/kahlan/kahlan/src'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
+    'Art4\\Requests\\' => array($vendorDir . '/art4/requests-psr18-adapter/src'),
 );
