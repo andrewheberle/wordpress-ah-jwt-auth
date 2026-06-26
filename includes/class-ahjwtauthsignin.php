@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use DomainException;
 use Exception;
+use InvalidArgumentException;
 use UnexpectedValueException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\BeforeValidException;
@@ -334,6 +335,10 @@ class AhJwtAuthSignIn {
 		}
 		try {
 			$payload = JWT::decode( $jwt, $key );
+		} catch ( InvalidArgumentException $e ) {
+			$this->error = __( 'AH JWT Auth: The provided key/key array is empty or malformed', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The provided key/key array is empty or malformed: ' . $e->getMessage() );
+			return false;
 		} catch ( DomainException $e ) {
 			$this->error = __( 'AH JWT Auth: The provided JWT is malformed', 'ah-jwt-auth' );
 			error_log( 'AH JWT Auth: ERROR: The provided JWT is malformed: ' . $e->getMessage() );
