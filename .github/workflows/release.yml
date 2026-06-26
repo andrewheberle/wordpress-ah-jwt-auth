@@ -1,0 +1,20 @@
+name: Release tasks
+permissions:
+  actions: read
+  contents: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+on: release
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          artifact-name: ah-jwt-auth-sbom.spdx.json
+      - uses: actions/attest@v4
+        with:
+          sbom-path: ah-jwt-auth-sbom.spdx.json

@@ -6,6 +6,7 @@ on:
   push:
     tags:
     - "*"
+
 jobs:
   tag:
     runs-on: ubuntu-latest
