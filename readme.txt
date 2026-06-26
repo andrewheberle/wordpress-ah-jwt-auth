@@ -69,7 +69,8 @@ The JWT must contain at least an `email` claim and may also contain a `role` cla
 
 The `aud` and `iss` claims are only required when a JWT Audience and/or Issuer
 value has been configured in the plugin settings, however as they are standard
-JWT claims it is recommended to set these options to verify those claims.
+JWT claims it is recommended to set these options to verify those claims exist
+and are valid.
 
 = What signature algorithms are supported to verify the JWT? =
 
