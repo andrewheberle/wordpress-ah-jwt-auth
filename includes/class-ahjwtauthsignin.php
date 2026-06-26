@@ -453,6 +453,7 @@ class AhJwtAuthSignIn {
 				$public_key = openssl_pkey_get_public( $key_material );
 				return false !== $public_key;
 			} catch ( Exception $e ) {
+				$this->log( 'AH JWT Auth: ERROR: There was an exception with openssl_pkey_get_public: ' . $e->getMessage() );
 				return false;
 			}
 		}
