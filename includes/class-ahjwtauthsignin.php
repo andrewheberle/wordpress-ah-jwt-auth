@@ -18,12 +18,19 @@ use DomainException;
 use Exception;
 use InvalidArgumentException;
 use UnexpectedValueException;
-use Firebase\JWT\JWT;
+use Art4\Requests\Psr\HttpClient;
+use Firebase\JWT\CachedKeySet;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
-use Firebase\JWT\SignatureInvalidException;
 use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Firebase\JWT\SignatureInvalidException;
+use ItalyStrap\Cache\Pool;
+use ItalyStrap\Cache\Expiration;
+use ItalyStrap\Storage\BinaryCacheDecorator;
+use ItalyStrap\Storage\Transient;
+use Nyholm\Psr7\Factory\Psr17Factory;
 
 /**
  *
@@ -66,8 +73,12 @@ class AhJwtAuthSignIn {
 
 		add_action( 'admin_notices', array( $this, 'ahjwtauth_admin_notice' ) );
 		add_action( 'init', array( $this, 'ahjwtauth_log_user_in' ) );
-		add_action( 'admin_init', array( $this, 'ahjwtauth_schedule_fetch_jwks' ) );
-		add_action( 'ahjwtauth_fetch_jwks', array( $this, 'ahjwtauth_fetch_jwks' ) );
+
+		// Remove legacy cron job if it exists from a previous version.
+		$timestamp = wp_next_scheduled( 'ahjwtauth_fetch_jwks' );
+		if ( $timestamp ) {
+			wp_unschedule_event( $timestamp, 'ahjwtauth_fetch_jwks' );
+		}
 	}
 
 	/**
@@ -216,78 +227,7 @@ class AhJwtAuthSignIn {
 		}
 	}
 
-	/**
-	 * Schedules the fetch of the JWKS via WP Cron
-	 *
-	 * @return void
-	 */
-	public function ahjwtauth_schedule_fetch_jwks() {
-		if ( ! wp_next_scheduled( 'ahjwtauth_fetch_jwks' ) ) {
-			wp_schedule_event( time(), 'daily', 'ahjwtauth_fetch_jwks' );
-		}
-	}
 
-	/**
-	 * Retrieves the JWKS from the configured URL and saves it as a transient
-	 *
-	 * A value of false is returned on error
-	 *
-	 * @return array an associative array containing the key set
-	 */
-	public function ahjwtauth_fetch_jwks() {
-		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
-		if ( '' === $jwks_url ) {
-			return true;
-		}
-
-		// retrieve json from JWKS URL with caching.
-		$json = get_transient( 'ahjwtauth_jwks_json' );
-
-		// Does transient exist?
-		if ( false !== $json ) {
-			// try to decode json.
-			$jwks = @json_decode( $json, true );
-			if ( null === $jwks ) {
-				$this->error = __( 'AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth' );
-				error_log( 'AH JWT Auth: ERROR: cannot decode the JSON retrieved from the JWKS URL' );
-				return false;
-			}
-
-			return $jwks;
-		}
-
-		// if transient did not exist, attempt to get url.
-		$response = wp_remote_get( $jwks_url );
-		if ( is_wp_error( $response ) ) {
-			$this->error = __( 'AH JWT Auth: error retrieving the JWKS URL', 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: error retrieving the JWKS URL' );
-			return false;
-		}
-
-		// grab response body.
-		$json = wp_remote_retrieve_body( $response );
-
-		// check that response was not empty.
-		if ( '' === $json ) {
-			$this->error = __( 'AH JWT Auth could not retrieve the specified JWKS URL', 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: could not retrieve the specified JWKS URL' );
-			return false;
-		}
-
-		// try to decode json.
-		$jwks = @json_decode( $json, true );
-		if ( null === $jwks ) {
-			$this->error = __( 'AH JWT Auth cannot decode the JSON retrieved from the JWKS URL', 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: cannot decode the JSON retrieved from the JWKS URL' );
-			return false;
-		}
-
-		// cache JWKS JSON for future.
-		set_transient( 'ahjwtauth_jwks_json', $json, WEEK_IN_SECONDS );
-
-		// return key set.
-		return $jwks;
-	}
 
 	/**
 	 * Retrieves the JWT
@@ -451,22 +391,22 @@ class AhJwtAuthSignIn {
 	private function get_key() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
 		if ( '' !== $jwks_url ) {
-			$jwks = $this->ahjwtauth_fetch_jwks();
+			$httpClient = new HttpClient();
+			$httpFactory = new Psr17Factory();
+			$driver = new BinaryCacheDecorator(new Transient());
+			$expiration = new Expiration();
+			$cachePool = new Pool($driver, $expiration);
 
-			if ( ! is_array( $jwks ) || ! isset( $jwks['keys'] ) ) {
-				$this->error = __( 'AH JWT Auth: Invalid or missing keys in JWKS response.', 'ah-jwt-auth' );
-				error_log( 'AH JWT Auth: ERROR: Invalid or missing keys in JWKS response.' );
-				return false;
-			}
+			$keySet = new CachedKeySet(
+				$jwks_url,
+				$httpClient,
+				$httpFactory,
+				$cachePool,
+				WEEK_IN_SECONDS,
+				true
+			);
 
-			try {
-				$keys = JWK::parseKeySet( array( 'keys' => $jwks['keys'] ) );
-				return $keys;
-			} catch ( Exception $e ) {
-				$this->error = $e->getMessage();
-				error_log( 'AH JWT Auth: ERROR: Problem parsing key-set: ' . $e->getMessage() );
-				return false;
-			}
+			return $keySet;
 		}
 
 		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );

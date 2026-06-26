@@ -1,0 +1,58 @@
+{
+    "name": "art4/requests-psr18-adapter",
+    "version": "1.4.1",
+    "description": "Use WordPress/Requests as a PSR-18 HTTP client",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "homepage": "https://github.com/Art4/WP-Requests-PSR18-Adapter",
+    "keywords": ["wordpress", "requests", "request", "response", "psr", "psr-18", "psr-7", "http", "http-client", "http-message"],
+    "authors": [
+        {
+            "name": "Art4",
+            "email": "art4@wlabs.de",
+            "homepage": "https://wlabs.de"
+        }
+    ],
+    "require": {
+        "php": "^7.2 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0",
+        "rmccue/requests": "^1.8 || ^2.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "phpstan/phpstan": "^1.12 || ^2.1",
+        "phpstan/phpstan-strict-rules": "^1.6 || ^2.0",
+        "phpunit/phpunit": "^8.5 || ^9.6 || ^11.5 || ^12.2",
+        "yoast/phpunit-polyfills": "^4.0"
+    },
+    "autoload": {
+        "files": ["v1-compat/autoload.php"],
+        "psr-4": {
+            "Art4\\Requests\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Art4\\Requests\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "codestyle": "php-cs-fixer fix",
+        "coverage": "phpunit --coverage-html=.code-coverage",
+        "phpstan": "phpstan analyze --memory-limit 512M --configuration .phpstan.neon",
+        "phpunit": "phpunit",
+        "test": [
+            "@phpstan",
+            "@phpunit",
+            "@codestyle --dry-run --diff"
+        ]
+    },
+    "provide": {
+        "psr/http-client-implementation": "^1.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

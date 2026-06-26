@@ -1,0 +1,16 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+    level: 8
+
+    paths:
+        - examples/
+        - src/
+        - tests/
+        - v1-compat/
+
+    scanDirectories:
+        - vendor
+
+    treatPhpDocTypesAsCertain: false

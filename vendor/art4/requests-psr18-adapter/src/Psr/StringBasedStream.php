@@ -1,0 +1,298 @@
+<?php
+
+declare(strict_types=1);
+/**
+ * PSR-7 StreamInterface implementation
+ */
+
+namespace Art4\Requests\Psr;
+
+use Psr\Http\Message\StreamInterface;
+use RuntimeException;
+use WpOrg\Requests\Exception\InvalidArgument;
+
+/**
+ * PSR-7 StreamInterface implementation
+ *
+ * Describes a data stream.
+ *
+ * Typically, an instance will wrap a PHP stream; this interface provides
+ * a wrapper around the most common operations, including serialization of
+ * the entire stream to a string.
+ */
+final class StringBasedStream implements StreamInterface
+{
+    /**
+     * Create StringBasedStream from string
+     */
+    public static function createFromString(string $content): self
+    {
+        return new self($content);
+    }
+
+    /**
+     * @var string
+     */
+    private $content;
+
+    /**
+     * @var int
+     */
+    private $pointer = 0;
+
+    /**
+     * @var bool
+     */
+    private $seekable = true;
+
+    /**
+     * Constructor
+     */
+    private function __construct(string $content)
+    {
+        $this->content = $content;
+    }
+
+    /**
+     * Reads all data from the stream into a string, from the beginning to end.
+     *
+     * This method MUST attempt to seek to the beginning of the stream before
+     * reading data and read the stream until the end is reached.
+     *
+     * Warning: This could attempt to load a large amount of data into memory.
+     *
+     * This method MUST NOT raise an exception in order to conform with PHP's
+     * string casting operations.
+     *
+     * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
+     */
+    public function __toString(): string
+    {
+        return $this->content;
+    }
+
+    /**
+     * Closes the stream and any underlying resources.
+     */
+    public function close(): void
+    {
+        $this->content = '';
+        $this->pointer = 0;
+        $this->seekable = false;
+    }
+
+    /**
+     * Separates any underlying resources from the stream.
+     *
+     * After the stream has been detached, the stream is in an unusable state.
+     *
+     * @return resource|null Underlying PHP stream, if any
+     */
+    public function detach()
+    {
+        return null;
+    }
+
+    /**
+     * Get the size of the stream if known.
+     *
+     * @return int Returns the size in bytes if known, or null if unknown.
+     */
+    public function getSize(): int
+    {
+        return strlen($this->content);
+    }
+
+    /**
+     * Returns the current position of the file read/write pointer
+     *
+     * @return int Position of the file pointer
+     * @throws \RuntimeException on error.
+     */
+    public function tell(): int
+    {
+        if (! $this->seekable) {
+            throw new RuntimeException('Stream is closed.');
+        }
+
+        return $this->pointer;
+    }
+
+    /**
+     * Returns true if the stream is at the end of the stream.
+     */
+    public function eof(): bool
+    {
+        return $this->pointer >= strlen($this->content);
+    }
+
+    /**
+     * Returns whether or not the stream is seekable.
+     */
+    public function isSeekable(): bool
+    {
+        return $this->seekable;
+    }
+
+    /**
+     * Seek to a position in the stream.
+     *
+     * @link http://www.php.net/manual/en/function.fseek.php
+     * @param int $offset Stream offset
+     * @param int $whence Specifies how the cursor position will be calculated
+     *     based on the seek offset. Valid values are identical to the built-in
+     *     PHP $whence values for `fseek()`.  SEEK_SET: Set position equal to
+     *     offset bytes SEEK_CUR: Set position to current location plus offset
+     *     SEEK_END: Set position to end-of-stream plus offset.
+     * @throws \RuntimeException on failure.
+     */
+    public function seek(int $offset, int $whence = SEEK_SET): void
+    {
+        if (! $this->seekable) {
+            throw new RuntimeException('Stream is closed.');
+        }
+
+        $size = strlen($this->content);
+
+        switch ($whence) {
+            case SEEK_SET:
+                $new = $offset;
+                break;
+            case SEEK_CUR:
+                $new = $this->pointer + $offset;
+                break;
+            case SEEK_END:
+                $new = $size + $offset;
+                break;
+            default:
+                throw new RuntimeException('Invalid whence.');
+        }
+
+        if ($new < 0 || $new > $size) {
+            throw new RuntimeException('Cannot seek to position ' . $new);
+        }
+
+        $this->pointer = $new;
+    }
+
+    /**
+     * Seek to the beginning of the stream.
+     *
+     * If the stream is not seekable, this method will raise an exception;
+     * otherwise, it will perform a seek(0).
+     *
+     * @see seek()
+     * @link http://www.php.net/manual/en/function.fseek.php
+     */
+    public function rewind(): void
+    {
+        $this->pointer = 0;
+    }
+
+    /**
+     * Returns whether or not the stream is writable.
+     */
+    public function isWritable(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Write data to the stream.
+     *
+     * @param string $string The string that is to be written.
+     * @return int Returns the number of bytes written to the stream.
+     * @throws \RuntimeException on failure.
+     */
+    public function write(string $string): int
+    {
+        throw new RuntimeException(__METHOD__ . '() is not supported.');
+    }
+
+    /**
+     * Returns whether or not the stream is readable.
+     */
+    public function isReadable(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Read data from the stream.
+     *
+     * @param int $length Read up to $length bytes from the object and return
+     *     them. Fewer than $length bytes may be returned if underlying stream
+     *     call returns fewer bytes.
+     * @return string Returns the data read from the stream, or an empty string
+     *     if no bytes are available.
+     * @throws \RuntimeException if an error occurs.
+     */
+    public function read(int $length): string
+    {
+        if ($length < 0) {
+            throw new RuntimeException('Length must be non-negative.');
+        }
+
+        if ($length === 0) {
+            return '';
+        }
+
+        $size = strlen($this->content);
+        $length = min($length, max(0, $size - $this->pointer));
+
+        if ($length === 0) {
+            return '';
+        }
+
+        $result = substr($this->content, $this->pointer, $length);
+
+        $this->pointer += $length;
+
+        return $result;
+    }
+
+    /**
+     * Returns the remaining contents in a string
+     */
+    public function getContents(): string
+    {
+        $size = strlen($this->content);
+
+        if ($this->pointer >= $size) {
+            return '';
+        }
+
+        $result = substr($this->content, $this->pointer);
+
+        $this->pointer = $size;
+
+        return $result;
+    }
+
+    /**
+     * Get stream metadata as an associative array or retrieve a specific key.
+     *
+     * The keys returned are identical to the keys returned from PHP's
+     * stream_get_meta_data() function.
+     *
+     * @link http://php.net/manual/en/function.stream-get-meta-data.php
+     * @param string|null $key Specific metadata to retrieve.
+     * @return array|mixed|null Returns an associative array if no key is
+     *     provided. Returns a specific key value if a key is provided and the
+     *     value is found, or null if the key is not found.
+     */
+    public function getMetadata(?string $key = null)
+    {
+        $meta = [
+            'seekable' => $this->seekable,
+            'readable' => true,
+            'writable' => false,
+        ];
+
+        if ($key === null) {
+            return $meta;
+        }
+
+        return $meta[$key] ?? null;
+    }
+}
