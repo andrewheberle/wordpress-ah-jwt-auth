@@ -391,22 +391,22 @@ class AhJwtAuthSignIn {
 	private function get_key() {
 		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
 		if ( '' !== $jwks_url ) {
-			$httpClient = new HttpClient();
-			$httpFactory = new Psr17Factory();
-			$driver = new BinaryCacheDecorator(new Transient());
+			$http_client = new HttpClient();
+			$http_factory = new Psr17Factory();
+			$driver = new BinaryCacheDecorator( new Transient() );
 			$expiration = new Expiration();
-			$cachePool = new Pool($driver, $expiration);
+			$cache_pool = new Pool( $driver, $expiration );
 
-			$keySet = new CachedKeySet(
+			$key_set = new CachedKeySet(
 				$jwks_url,
-				$httpClient,
-				$httpFactory,
-				$cachePool,
+				$http_client,
+				$http_factory,
+				$cache_pool,
 				WEEK_IN_SECONDS,
 				true
 			);
 
-			return $keySet;
+			return $key_set;
 		}
 
 		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
