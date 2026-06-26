@@ -10,9 +10,13 @@
 
 namespace AhJwtAuth;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 /**
  *
- * This class handles the settings/admin sie of the plugin to
+ * This class handles the settings/admin side of the plugin to
  * allow configuration of the plugin.
  *
  * @category Class
@@ -138,6 +142,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => false,
+				'sanitize_callback' => 'sanitize_textarea_field',
 			),
 		);
 
@@ -147,6 +152,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
+				'sanitize_callback' => 'esc_url_raw',
 			),
 		);
 
@@ -189,6 +195,13 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
+				'sanitize_callback' => function ( $value ) {
+					$valid_roles = wp_roles()->get_names();
+					if ( array_key_exists( $value, $valid_roles ) ) {
+						return $value;
+					}
+					return 'subscriber';
+				},
 				'default' => 'subscriber',
 			),
 		);
@@ -229,7 +242,7 @@ class AhJwtAuthAdmin {
 					'ahjwtauth-jwks-url',
 					'text',
 					__( 'Enter the JWKS URL to validate the JWT.', 'ah-jwt-auth' ),
-					__( 'The retreived JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth' ),
+					__( 'The retrieved JWKS is used for verifying the token (use this field or the "JWT Private Secret", not both)', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',
@@ -287,7 +300,7 @@ class AhJwtAuthAdmin {
 			function () {
 				$this->options_page_select_input_action(
 					'ahjwtauth-user-role',
-					__( 'Select the role for and auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
+					__( 'Select the role for an auto-created user if a role claim is not found in the JWT.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',

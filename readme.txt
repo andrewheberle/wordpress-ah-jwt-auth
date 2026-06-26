@@ -71,9 +71,9 @@ The `aud` and `iss` claims are only required when a JWT Audience and/or Issuer
 value has been configured in the plugin settings, however as they are standard
 JWT claims it is recommended to set these options to verify those claims.
 
-= What signature algorimths are supported to verify the JWT? =
+= What signature algorithms are supported to verify the JWT? =
 
-Currently only the HS256 and RS256 alorithms are supported.
+Currently only the HS256 and RS256 algorithms are supported.
 
 == Screenshots ==
 
@@ -86,7 +86,7 @@ Currently only the HS256 and RS256 alorithms are supported.
 * Add option to verify JWT issuer
 
 = 2.0.0 =
-* **Breaking Change:** Any secrets that are less than 256-bytes (32-characters)
+* **Breaking Change:** Any secrets that are less than 256-bits (32-characters)
   in length will fail JWT HS256 verification
 
 = 1.6.0 =
