@@ -269,14 +269,32 @@ class AhJwtAuthSignIn {
 		}
 		try {
 			$payload = JWT::decode( $jwt, $key );
+		} catch ( DomainException $e ) {
+			$this->error = __( 'AH JWT Auth: The provided JWT is malformed', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The provided JWT is malformed: ' . $e->getMessage() );
+			return false;
+		} catch ( UnexpectedValueException $e ) {
+			$this->error = __( 'AH JWT Auth: The provided JWT was invalid', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The provided JWT was invalid: ' . $e->getMessage() );
+			return false;
 		} catch ( SignatureInvalidException $e ) {
-			$this->error = __( 'AH JWT Auth: Cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
-			error_log( 'AH JWT Auth: ERROR: Cannot verify the JWT. Please double check that your private secret or JWKS URL is configured correctly' );
+			$this->error = __( 'AH JWT Auth: Cannot verify the signature of the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: Cannot verify the signature of the JWT. Please double check that your private secret or JWKS URL is configured correctly: ' . $e->getMessage() );
+			return false;
+		} catch ( BeforeValidException $e ) {
+			$this->error = __( 'AH JWT Auth: The provided JWT is trying to be used before it\'s eligible as defined by the \'nbf\' and/or \'iat\' claim', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The provided JWT is trying to be used before it\'s eligible as defined by the \'nbf\' and/or \'iat\' claim: ' . $e->getMessage() );
+			return false;
+		} catch ( ExpiredException $e ) {
+			$this->error = __( 'AH JWT Auth: The provided JWT has since expired, as defined by the \'exp\' claim', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The provided JWT has since expired, as defined by the \'exp\' claim: ' . $e->getMessage() );
 			return false;
 		} catch ( Exception $e ) {
+			$this->error = __( 'AH JWT Auth: There was an unhandled exception while verifiying the JWT', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: There was an unhandled exception while verifiying the JWT: ' . $e->getMessage() );
 			return false;
 		}
-		if ( ! $this->validate_audience( $payload ) ) {
+		if ( ! $this->validate_audience( $payload ) || ! $this->validate_issuer( $payload ) ) {
 			return false;
 		}
 		return $payload;
@@ -321,6 +339,35 @@ class AhJwtAuthSignIn {
 	}
 
 	/**
+	 * Validates the JWT issuer (iss) claim against the configured issuer value.
+	 *
+	 * If no issuer value has been configured, issuer validation is skipped.
+	 *
+	 * @param object $payload the payload from the JWT.
+	 * @return bool true if the issuer is valid or validation is disabled
+	 */
+	private function validate_issuer( $payload ) {
+		$expected_issuer = trim( get_option( 'ahjwtauth-issuer', '' ) );
+		if ( '' === $expected_issuer ) {
+			return true;
+		}
+
+		if ( ! isset( $payload->iss ) ) {
+			$this->error = __( 'AH JWT Auth: The JWT does not contain the required iss claim.', 'ah-jwt-auth' );
+			error_log( 'AH JWT Auth: ERROR: The JWT does not contain the required iss claim.' );
+			return false;
+		}
+
+		if ( hash_equals( $expected_issuer, $payload->iss ) ) {
+			return true;
+		}
+
+		$this->error = __( 'AH JWT Auth: The JWT iss claim does not match the configured issuer.', 'ah-jwt-auth' );
+		error_log( 'AH JWT Auth: ERROR: The JWT iss claim does not match the configured issuer.' );
+		return false;
+	}
+
+	/**
 	 * Returns the key to verify the JWT
 	 *
 	 * Depending on the configuration of the plugin, this function will return
@@ -348,6 +395,7 @@ class AhJwtAuthSignIn {
 			return $keys;
 		}
 
+		// throw new Exception( get_option( 'ahjwtauth-private-secret' ) );
 		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
 	}
 

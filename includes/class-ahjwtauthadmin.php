@@ -156,6 +156,7 @@ class AhJwtAuthAdmin {
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
+				'sanitize_callback' => 'sanitize_text_field',
 				'default' => 'Authorization',
 			),
 		);
@@ -163,6 +164,17 @@ class AhJwtAuthAdmin {
 		register_setting(
 			'ahjwtauth-sign-in-widget',
 			'ahjwtauth-audience',
+			array(
+				'type' => 'string',
+				'show_in_rest' => true,
+				'sanitize_callback' => 'sanitize_text_field',
+				'default' => '',
+			),
+		);
+
+		register_setting(
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-issuer',
 			array(
 				'type' => 'string',
 				'show_in_rest' => true,
@@ -233,6 +245,21 @@ class AhJwtAuthAdmin {
 					'text',
 					__( 'Enter the HTTP header that contains the JWT.', 'ah-jwt-auth' ),
 					__( 'The JWT will be retrieved from the specified HTTP header. This defaults to the "Authorization" header.', 'ah-jwt-auth' ),
+				);
+			},
+			'ahjwtauth-sign-in-widget',
+			'ahjwtauth-sign-in-widget-options-section',
+		);
+
+		add_settings_field(
+			'ahjwtauth-audience',
+			'JWT Issuer',
+			function () {
+				$this->options_page_text_input_action(
+					'ahjwtauth-audience',
+					'text',
+					__( 'Enter the expected iss claim value.', 'ah-jwt-auth' ),
+					__( 'If set, incoming JWTs must include a matching iss claim. Leave empty to disable issuer validation.', 'ah-jwt-auth' ),
 				);
 			},
 			'ahjwtauth-sign-in-widget',
