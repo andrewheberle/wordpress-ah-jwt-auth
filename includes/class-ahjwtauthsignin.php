@@ -170,8 +170,8 @@ class AhJwtAuthSignIn {
 			}
 
 			$random_password = wp_generate_password( 64, false );
-			$user_id = wp_create_user( $email, $random_password, $email );
-			$user = get_user_by( 'id', $user_id );
+			$user_id         = wp_create_user( $email, $random_password, $email );
+			$user            = get_user_by( 'id', $user_id );
 
 			// set role on creation to configured default if not included in jwt.
 			if ( ! isset( $payload->role ) ) {
@@ -193,11 +193,13 @@ class AhJwtAuthSignIn {
 		do_action( 'wp_login', $user->login, $user );
 
 		// redirect after login.
-		$redirect_url = home_url();
-		if ( current_user_can( 'manage_options' ) ) {
-			$redirect_url = admin_url();
+		$redirect_to = current_user_can( 'manage_options' ) ? admin_url() : home_url();
+		if (
+			isset( $_GET['redirect_to'], $_GET['redirect_to_nonce'] )
+			&& wp_verify_nonce( sanitize_key( $_POST['redirect_to_nonce'] ), 'ahjwtauth_log_user_in' )
+		) {
+			$redirect_to = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) );
 		}
-		$redirect_to = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : $redirect_url;
 
 		wp_safe_redirect( $redirect_to );
 		exit;
