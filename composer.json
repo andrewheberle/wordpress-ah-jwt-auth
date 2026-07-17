@@ -2,7 +2,9 @@
     "require": {
         "firebase/php-jwt": "^7.0",
         "nyholm/psr7": "^1.8",
-        "art4/requests-psr18-adapter": "^1.4"
+        "art4/requests-psr18-adapter": "^1.4",
+        "italystrap/cache": "^2.0",
+        "italystrap/storage": "^1.0"
     },
     "replace": {
         "rmccue/requests": "*"

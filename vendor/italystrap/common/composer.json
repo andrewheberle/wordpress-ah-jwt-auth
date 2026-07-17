@@ -1,0 +1,66 @@
+{
+    "name": "italystrap/common",
+    "description": "A shared library for ItalyStrap project for ItalyStrap project",
+    "keywords": ["italystrap", "common", "library"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Enea",
+            "email": "info@overclokk.net",
+            "homepage": "https://www.italystrap.com",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php" : ">=7.4"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+
+        "vimeo/psalm": "^5.6",
+
+        "rector/rector": "^0.15.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "ItalyStrap\\Storage\\": "storage/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+        }
+    },
+    "scripts": {
+        "compat": [
+            ".\\vendor\\bin\\phpcs -p --standard=PHPCompatibility src"
+        ],
+        "psalm": [
+            "@php ./vendor/bin/psalm --no-cache"
+        ],
+        "cs": [
+            "@php vendor/bin/phpcs -p"
+        ],
+        "cs:fix": [
+            "@php vendor/bin/phpcbf -p"
+        ],
+        "qa": [
+            "@compat",
+            "@cs",
+            "@psalm"
+        ]
+    },
+    "support"    : {
+        "issues": "https://github.com/ItalyStrap/common/issues",
+        "source": "https://github.com/ItalyStrap/common"
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

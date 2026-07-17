@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 use AhJwtAuth\AhJwtAuthSignIn;
+use Firebase\JWT\CachedKeySet;
 use Firebase\JWT\JWT;
 
 function verify_token_for_test( $configured_audience, $payload, $configured_key = 'a-test-secret-at-least-256-bits-long', $signing_key = null, $algorithm = 'HS256' ) {
@@ -40,6 +41,37 @@ function rsa_key_pair_for_test() {
 		'public' => $details['key'],
 	);
 }
+
+function get_key_for_test( $jwks_url ) {
+	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-jwks-url'] = $jwks_url;
+
+	$reflection = new ReflectionClass( AhJwtAuthSignIn::class );
+	$sign_in = $reflection->newInstanceWithoutConstructor();
+	$method = $reflection->getMethod( 'get_key' );
+	$method->setAccessible( true );
+
+	return $method->invoke( $sign_in );
+}
+
+describe(
+	'AhJwtAuthSignIn JWKS key set',
+	function() {
+		beforeEach(
+			function() {
+				$GLOBALS['ahjwtauth_test_options'] = array();
+			}
+		);
+
+		it(
+			'creates a cached key set when a JWKS URL is configured',
+			function() {
+				$key_set = get_key_for_test( 'https://example.com/.well-known/jwks.json' );
+
+				expect( $key_set )->toBeAnInstanceOf( CachedKeySet::class );
+			}
+		);
+	}
+);
 
 describe(
 	'AhJwtAuthSignIn Basic JWT validation',

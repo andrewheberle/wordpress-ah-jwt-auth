@@ -1,0 +1,129 @@
+{
+    "name": "italystrap/storage",
+    "description": "A storage library for ItalyStrap",
+    "keywords": ["storage", "italystrap"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Enea",
+            "email": "info@overclokk.net",
+            "homepage": "http://overclokk.net",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php" : ">=7.4",
+        "italystrap/common": "^1.0"
+    },
+    "require-dev": {
+        "lucatume/wp-browser": "^3.1",
+        "lucatume/function-mocker-le": "^1.0",
+        "codeception/module-asserts": "^1.0",
+        "codeception/module-db": "^1.2",
+        "codeception/module-phpbrowser": "^1.0",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "inpsyde/wp-stubs": "dev-main",
+
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+
+        "vimeo/psalm": "^5.6",
+        "humanmade/psalm-plugin-wordpress": "^3.0.0-alpha1",
+
+        "phpbench/phpbench": "^1.2",
+        "phpmetrics/phpmetrics": "^2.8",
+
+        "infection/infection": "^0.26.6",
+        "infection/codeception-adapter": "^0.4.1",
+
+        "rector/rector": "^0.15.17",
+        "italystrap/debug": "^2.1",
+        "italystrap/storage-tests": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "ItalyStrap\\Storage\\": [
+                "src/"
+            ]
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ],
+        "psr-4": {
+            "ItalyStrap\\Tests\\": "tests/src/",
+            "ItalyStrap\\Tests\\Unit\\": "tests/unit/",
+            "ItalyStrap\\Tests\\WPUnit\\": "tests/wpunit/"
+        }
+    },
+    "scripts": {
+        "compat": [
+            "@php ./vendor/bin/phpcs -p --standard=PHPCompatibility src"
+        ],
+        "metrics": [
+            "@php ./vendor/bin/phpmetrics --report-html='./tests/_output/report' ./src"
+        ],
+        "infection": [
+            "@php ./vendor/bin/infection --threads=4"
+        ],
+        "bench": [
+            "@php ./vendor/bin/phpbench run --report=performance"
+        ],
+        "psalm": [
+            "@php ./vendor/bin/psalm --no-cache"
+        ],
+        "clean": [
+            "@php ./vendor/bin/codecept clean"
+        ],
+        "tests": [
+            "@unit",
+            "@wpunit"
+        ],
+        "wpunit": [
+            "@php ./vendor/bin/codecept run wpunit"
+        ],
+        "wpunit:coverage": [
+            "@wpunit --coverage-text"
+        ],
+        "wpunit:debug": [
+            "@wpunit --debug"
+        ],
+        "unit": [
+            "@php ./vendor/bin/codecept run unit"
+        ],
+        "unit:coverage": [
+            "@unit --coverage-text"
+        ],
+        "unit:debug": [
+            "@unit --debug"
+        ],
+        "cs": [
+            "@php vendor/bin/phpcs -p"
+        ],
+        "cs:fix": [
+            "@php vendor/bin/phpcbf -p"
+        ],
+        "qa": [
+            "@compat",
+            "@cs",
+            "@psalm",
+            "@unit",
+            "@wpunit",
+            "@infection"
+        ]
+    },
+    "support"    : {
+        "issues": "https://github.com/ItalyStrap/storage/issues",
+        "source": "https://github.com/ItalyStrap/storage"
+    },
+    "config": {
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

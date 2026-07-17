@@ -1,0 +1,17 @@
+{
+  "bootstrap": "index.php",
+  "php_disable_ini": true,
+  "php_config": {
+    "extension": [ "json.so" ]
+  },
+  "path": "tests/benchmarks",
+  "reports": {
+    "performance": {
+      "extends": "default",
+      "title": "Simple Cache Performance",
+      "description": "Benchmark how long it takes to run simple cache",
+      "cols": [ "subject", "mode" ]
+    }
+  },
+  "time_unit": "milliseconds"
+}
