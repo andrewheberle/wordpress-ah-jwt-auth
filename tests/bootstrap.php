@@ -11,6 +11,14 @@ error_reporting( E_ALL & ~E_DEPRECATED );
 ini_set( 'log_errors', '1' );
 ini_set( 'error_log', sys_get_temp_dir() . '/ahjwtauth-test-error.log' );
 
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', dirname( __DIR__ ) . '/' );
+}
+
+if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
+	define( 'WEEK_IN_SECONDS', 7 * 24 * 60 * 60 );
+}
+
 $GLOBALS['ahjwtauth_test_options'] = array();
 
 if ( ! function_exists( 'get_option' ) ) {
@@ -24,6 +32,24 @@ if ( ! function_exists( 'get_option' ) ) {
 if ( ! function_exists( '__' ) ) {
 	function __( $text, $domain = 'default' ) {
 		return $text;
+	}
+}
+
+if ( ! function_exists( 'get_transient' ) ) {
+	function get_transient( $key ) {
+		return false;
+	}
+}
+
+if ( ! function_exists( 'set_transient' ) ) {
+	function set_transient( $key, $value, $expiration = 0 ) {
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_transient' ) ) {
+	function delete_transient( $key ) {
+		return true;
 	}
 }
 

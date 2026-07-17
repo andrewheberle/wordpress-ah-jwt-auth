@@ -6,10 +6,16 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Psr\\SimpleCache\\' => array($vendorDir . '/psr/simple-cache/src'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
     'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
+    'Psr\\Clock\\' => array($vendorDir . '/psr/clock/src'),
+    'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
     'Nyholm\\Psr7\\' => array($vendorDir . '/nyholm/psr7/src'),
     'Kahlan\\' => array($vendorDir . '/kahlan/kahlan/src'),
+    'ItalyStrap\\Storage\\' => array($vendorDir . '/italystrap/cache/storage', $vendorDir . '/italystrap/storage/src', $vendorDir . '/italystrap/common/storage'),
+    'ItalyStrap\\Cache\\' => array($vendorDir . '/italystrap/cache/src'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
+    'Fig\\Cache\\' => array($vendorDir . '/fig/cache-util/src'),
     'Art4\\Requests\\' => array($vendorDir . '/art4/requests-psr18-adapter/src'),
 );

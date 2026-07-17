@@ -14,8 +14,11 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
     public static $prefixLengthsPsr4 = array (
         'P' => 
         array (
+            'Psr\\SimpleCache\\' => 16,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
+            'Psr\\Clock\\' => 10,
+            'Psr\\Cache\\' => 10,
         ),
         'N' => 
         array (
@@ -25,9 +28,15 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
         array (
             'Kahlan\\' => 7,
         ),
+        'I' =>
+        array (
+            'ItalyStrap\\Storage\\' => 19,
+            'ItalyStrap\\Cache\\' => 17,
+        ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
+            'Fig\\Cache\\' => 10,
         ),
         'A' => 
         array (
@@ -36,6 +45,10 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
     );
 
     public static $prefixDirsPsr4 = array (
+        'Psr\\SimpleCache\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
@@ -45,6 +58,14 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
         array (
             0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
+        'Psr\\Clock\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/clock/src',
+        ),
+        'Psr\\Cache\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/cache/src',
+        ),
         'Nyholm\\Psr7\\' => 
         array (
             0 => __DIR__ . '/..' . '/nyholm/psr7/src',
@@ -53,9 +74,23 @@ class ComposerStaticInit987d7617990327d04d87c45cdcb898e4
         array (
             0 => __DIR__ . '/..' . '/kahlan/kahlan/src',
         ),
+        'ItalyStrap\\Storage\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/italystrap/cache/storage',
+            1 => __DIR__ . '/..' . '/italystrap/storage/src',
+            2 => __DIR__ . '/..' . '/italystrap/common/storage',
+        ),
+        'ItalyStrap\\Cache\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/italystrap/cache/src',
+        ),
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
+        'Fig\\Cache\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/fig/cache-util/src',
         ),
         'Art4\\Requests\\' => 
         array (
