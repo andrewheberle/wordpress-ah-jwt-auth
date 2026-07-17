@@ -83,6 +83,9 @@ Currently only the HS256 and RS256 algorithms are supported.
 
 == Changelog ==
 
+= 2.4.0 =
+* Fix fatal error with JWKS caching
+
 = 2.3.0 =
 * Replace JWKS caching process
 
