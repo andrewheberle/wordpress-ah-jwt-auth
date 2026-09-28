@@ -801,23 +801,23 @@
     "packages-dev": [
         {
             "name": "kahlan/kahlan",
-            "version": "6.1.0",
+            "version": "6.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kahlan/kahlan.git",
-                "reference": "578dcebdbd876c62acba7419112e216f9c9003aa"
+                "reference": "933a9d698ce9ae2cd7accb704a40723bdaa9316b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kahlan/kahlan/zipball/578dcebdbd876c62acba7419112e216f9c9003aa",
-                "reference": "578dcebdbd876c62acba7419112e216f9c9003aa",
+                "url": "https://api.github.com/repos/kahlan/kahlan/zipball/933a9d698ce9ae2cd7accb704a40723bdaa9316b",
+                "reference": "933a9d698ce9ae2cd7accb704a40723bdaa9316b",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.4"
             },
             "require-dev": {
-                "rector/rector": "^2.0",
+                "rector/rector": "^2.5",
                 "squizlabs/php_codesniffer": "^3.10.1"
             },
             "bin": [
@@ -854,9 +854,9 @@
             ],
             "support": {
                 "issues": "https://github.com/kahlan/kahlan/issues",
-                "source": "https://github.com/kahlan/kahlan/tree/6.1.0"
+                "source": "https://github.com/kahlan/kahlan/tree/6.1.2"
             },
-            "time": "2026-01-23T17:49:01+00:00"
+            "time": "2026-09-28T15:14:56+00:00"
         }
     ],
     "aliases": [],
@@ -866,5 +866,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
