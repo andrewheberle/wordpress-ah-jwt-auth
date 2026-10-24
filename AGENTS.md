@@ -4,7 +4,11 @@ Done when `composer test` passes in a clean checkout (`git worktree add`): a sta
 
 ## Dependencies
 
-`vendor/` is gitignored. The deploy workflow builds it with `composer install --no-dev`, so everything in `require` ships to WordPress.org; test and build tools go in `require-dev`.
+`vendor/` is gitignored. The Release workflow builds it with `composer install --no-dev`, so everything in `require` ships to WordPress.org; test and build tools go in `require-dev`.
+
+## Releases
+
+The `Version:` header, `Stable tag`, "Tested up to" and changelog entries are written by the Prepare release workflow; leave them as they are in other changes. Merging a release PR deploys to WordPress.org. See `README.md` and `docs/adr/0001-release-from-a-release-pr.md`.
 
 ## Agent skills
 
