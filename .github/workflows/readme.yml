@@ -1,23 +1,20 @@
-name: Plugin asset/readme update
+name: Sync readme
 permissions:
   contents: read
 
-on:
-  push:
-    branches:
-    - main
+on: workflow_dispatch
 
 jobs:
-  update:
-    name: Push to trunk
+  sync:
+    name: Push readme and assets to WordPress.org
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-    - name: Run tests
-      run: composer test
     - name: WordPress.org plugin asset/readme update
       uses: 10up/action-wordpress-plugin-asset-update@2480306f6f693672726d08b5917ea114cb2825f7 # 2.2.0
       env:
         SLUG: ah-jwt-auth
         SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+        IGNORE_OTHER_FILES: true

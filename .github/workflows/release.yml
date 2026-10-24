@@ -1,25 +1,112 @@
-name: Release tasks
+name: Release
 permissions:
-  actions: read
-  contents: write
-  id-token: write
-  attestations: write
-  artifact-metadata: write
+  contents: read
 
 on:
-  release:
-    types: [ published ]
+  push:
+    branches:
+    - main
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  sbom:
+  check:
+    name: Check for a new version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      previous: ${{ steps.check.outputs.previous }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+    - name: Compare the Version header with the latest release
+      id: check
+      run: |
+        version=$(sed -nE 's/^ \* Version: *([^ ]+).*/\1/p' ah-jwt-auth.php)
+        latest=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)
+        if [ "$version" = "$latest" ]; then
+          echo "Version $version is already released"
+          exit 0
+        fi
+        if [ "$(printf '%s\n%s\n' "$version" "$latest" | sort -V | tail -n 1)" != "$version" ]; then
+          echo "::error::Version $version is lower than the latest release $latest"
+          exit 1
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "previous=$latest" >> "$GITHUB_OUTPUT"
+
+  tests:
+    needs: check
+    if: needs.check.outputs.version != ''
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
-        with:
-          output-file: sbom.spdx.json
-          dependency-snapshot: true
-      - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
-        with:
-          subject-path: sbom.spdx.json
-          sbom-path: sbom.spdx.json
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Run tests
+      run: composer test
+
+  deploy:
+    name: Deploy to WordPress.org
+    needs: [check, tests]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Install production dependencies
+      run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+    - name: WordPress Plugin Deploy
+      uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+      env:
+        SLUG: ah-jwt-auth
+        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+        VERSION: ${{ needs.check.outputs.version }}
+
+  publish:
+    name: Create GitHub release
+    needs: [check, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Create the tag and release from the changelog entry
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VERSION: ${{ needs.check.outputs.version }}
+        PREVIOUS: ${{ needs.check.outputs.previous }}
+      run: |
+        if gh release view "$VERSION" > /dev/null 2>&1; then
+          echo "Release $VERSION already exists"
+          exit 0
+        fi
+        awk -v header="= $VERSION =" '$0 == header { found = 1; next } found && /^= / { exit } found && NF' readme.txt > notes.md
+        printf '\n**Full Changelog**: %s/%s/compare/%s...%s\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$PREVIOUS" "$VERSION" >> notes.md
+        gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file notes.md
+
+  sbom:
+    name: Attest SBOM
+    needs: [check, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+      with:
+        output-file: sbom.spdx.json
+        dependency-snapshot: true
+    - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+      with:
+        subject-path: sbom.spdx.json
+        sbom-path: sbom.spdx.json
+    - name: Attach the SBOM to the release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        VERSION: ${{ needs.check.outputs.version }}
+      run: gh release upload "$VERSION" sbom.spdx.json --clobber

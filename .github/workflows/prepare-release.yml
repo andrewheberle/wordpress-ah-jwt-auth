@@ -1,0 +1,52 @@
+name: Prepare release
+permissions:
+  contents: write
+  pull-requests: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the version to increase
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        default: minor
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+    - name: Update version, stable tag, Tested up to and changelog
+      id: prepare
+      env:
+        BUMP: ${{ inputs.bump }}
+        GH_TOKEN: ${{ github.token }}
+      run: echo "version=$(.github/scripts/prepare-release.sh "$BUMP")" >> "$GITHUB_OUTPUT"
+    # The branch is pushed rather than opened as a PR: a PR opened with
+    # GITHUB_TOKEN does not trigger the required PR checks.
+    - name: Push release branch
+      env:
+        VERSION: ${{ steps.prepare.outputs.version }}
+      run: |
+        branch="release/$VERSION"
+        if git ls-remote --exit-code --heads origin "$branch" > /dev/null; then
+          echo "::error::Branch $branch already exists"
+          exit 1
+        fi
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git switch -c "$branch"
+        git commit -am "Prepare release $VERSION"
+        git push origin "$branch"
+        {
+          echo "Release branch \`$branch\` is ready."
+          echo
+          echo "[Open the release PR]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/main...$branch?expand=1), rewrite the changelog for users, check \"Tested up to\", then merge to release."
+        } >> "$GITHUB_STEP_SUMMARY"
