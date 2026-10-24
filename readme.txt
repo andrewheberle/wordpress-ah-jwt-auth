@@ -159,14 +159,3 @@ created from JWTs are kept, as they belong to the site.
 
 = 1.0.0 =
 * First version
-
-== Upgrade Notice ==
-
-= 1.0.3 =
-Initial public release
-
-= 1.0.2 =
-Internationalisation for strings
-
-= 1.0.1 =
-Better handling or errors.

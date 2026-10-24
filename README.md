@@ -52,6 +52,24 @@ could easily block access to your site if an issue prevents a valid JWT from
 being added to the request or prevents verification of the JWT such as time
 skew or token/key/JWKS mismatches/expiry.
 
+## Releasing
+
+1. In GitHub Actions, run **Prepare release** on `main` and pick `patch`,
+   `minor` or `major`. It pushes a `release/X.Y.Z` branch that bumps the
+   `Version:` header and `Stable tag`, sets "Tested up to" to the current
+   WordPress version, and drafts a changelog entry from the PRs merged since
+   the last release.
+2. Open the PR from the link in the workflow summary. Rewrite the changelog
+   entry in `readme.txt` for users, and revert "Tested up to" if you have not
+   tested with that WordPress version.
+3. Merge the PR. The **Release** workflow runs the tests, deploys to
+   WordPress.org, creates the tag and GitHub release from the changelog entry,
+   and attaches the SBOM.
+
+To update the readme or plugin assets on WordPress.org between releases (for
+example a "Tested up to" bump), run **Sync readme**, which pushes `main`'s
+`readme.txt` and `.wordpress-org` assets only.
+
 ## Credits
 
 This plugin uses code originally from [https://github.com/datawiza-inc/wordpress-proxy-auth-plugin](https://github.com/datawiza-inc/wordpress-proxy-auth-plugin) with modifications to add more features and to make things more generic so they are usable with any provider/proxy that adds the JWT as a HTTP Header.
