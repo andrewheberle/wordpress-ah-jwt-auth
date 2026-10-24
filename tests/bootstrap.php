@@ -60,4 +60,7 @@ if ( file_exists( $autoload ) ) {
 }
 
 require_once __DIR__ . '/../includes/class-ahjwtauthadmin.php';
+require_once __DIR__ . '/../includes/interface-ahjwtauthkeysource.php';
+require_once __DIR__ . '/../includes/class-ahjwtauthstatickeysource.php';
+require_once __DIR__ . '/../includes/class-ahjwtauthjwkskeysource.php';
 require_once __DIR__ . '/../includes/class-ahjwtauthsignin.php';
