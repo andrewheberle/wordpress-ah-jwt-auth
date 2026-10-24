@@ -14,17 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use DomainException;
-use Exception;
-use InvalidArgumentException;
-use UnexpectedValueException;
 use Art4\Requests\Psr\HttpClient;
-use Firebase\JWT\CachedKeySet;
-use Firebase\JWT\BeforeValidException;
-use Firebase\JWT\ExpiredException;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-use Firebase\JWT\SignatureInvalidException;
 
 /**
  *
@@ -255,147 +245,32 @@ class AhJwtAuthSignIn {
 	}
 
 	/**
-	 * Decodes the JWT
+	 * Verifies the JWT
 	 *
-	 * The provided JWT is verified using the configured key and decoded
+	 * The provided JWT is verified using the configured key source and its
+	 * claims are checked against the configured audience and issuer
 	 *
 	 * A value of false is returned on error
 	 *
-	 * @param string $jwt the JWT to decode.
-	 * @return object the payload from the JWT
+	 * @param string $jwt the JWT to verify.
+	 * @return object|false the payload from the JWT
 	 */
 	private function verify_token( $jwt ) {
-		$key = $this->get_key();
-		if ( false === $key ) {
-			return false;
-		}
-		try {
-			$payload = JWT::decode( $jwt, $key );
-		} catch ( InvalidArgumentException $e ) {
-			$this->error = __( 'AH JWT Auth: The provided key/key array is empty or malformed', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: The provided key/key array is empty or malformed: ' . $e->getMessage() );
-			return false;
-		} catch ( DomainException $e ) {
-			$this->error = __( 'AH JWT Auth: The provided JWT is malformed', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: The provided JWT is malformed: ' . $e->getMessage() );
-			return false;
-		} catch ( UnexpectedValueException $e ) {
-			$this->error = __( 'AH JWT Auth: The provided JWT was invalid', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: The provided JWT was invalid: ' . $e->getMessage() );
-			return false;
-		} catch ( SignatureInvalidException $e ) {
-			$this->error = __( 'AH JWT Auth: Cannot verify the signature of the JWT. Please double check that your private secret or JWKS URL is configured correctly', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: Cannot verify the signature of the JWT. Please double check that your private secret or JWKS URL is configured correctly: ' . $e->getMessage() );
-			return false;
-		} catch ( BeforeValidException $e ) {
-			$this->error = __( 'AH JWT Auth: The provided JWT is trying to be used before it\'s eligible as defined by the \'nbf\' and/or \'iat\' claim', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: The provided JWT is trying to be used before it\'s eligible as defined by the \'nbf\' and/or \'iat\' claim: ' . $e->getMessage() );
-			return false;
-		} catch ( ExpiredException $e ) {
-			$this->error = __( 'AH JWT Auth: The provided JWT has since expired, as defined by the \'exp\' claim', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: The provided JWT has since expired, as defined by the \'exp\' claim: ' . $e->getMessage() );
-			return false;
-		} catch ( Exception $e ) {
-			$this->error = __( 'AH JWT Auth: There was an unhandled exception while verifying the JWT', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: There was an unhandled exception while verifying the JWT: ' . $e->getMessage() );
-			return false;
-		}
-		if ( ! $this->validate_audience( $payload ) || ! $this->validate_issuer( $payload ) ) {
-			return false;
-		}
-		return $payload;
-	}
+		$verifier = new AhJwtAuthTokenVerifier(
+			$this->key_source(),
+			get_option( 'ahjwtauth-audience', '' ),
+			get_option( 'ahjwtauth-issuer', '' )
+		);
 
-	/**
-	 * Validates the JWT audience claim against the configured audience value.
-	 *
-	 * If no audience value has been configured, audience validation is skipped
-	 * to maintain backwards compatibility with existing installations.
-	 *
-	 * @param object $payload the payload from the JWT.
-	 * @return bool true if the audience is valid or validation is disabled
-	 */
-	private function validate_audience( $payload ) {
-		$expected_audience = trim( get_option( 'ahjwtauth-audience', '' ) );
-		if ( '' === $expected_audience ) {
-			return true;
-		}
-
-		if ( ! isset( $payload->aud ) ) {
-			$this->error = __( 'AH JWT Auth: The JWT does not contain the required aud claim.', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: The JWT does not contain the required aud claim.' );
+		$result = $verifier->verify( $jwt );
+		if ( $result instanceof AhJwtAuthVerificationFailure ) {
+			$this->error = 'AH JWT Auth: ' . $result->get_message();
+			$detail      = '' === $result->get_detail() ? '' : ': ' . $result->get_detail();
+			$this->log( 'AH JWT Auth: ERROR: ' . $result->get_message() . $detail );
 			return false;
 		}
 
-		if ( is_string( $payload->aud ) && hash_equals( $expected_audience, $payload->aud ) ) {
-			return true;
-		}
-
-		if ( is_array( $payload->aud ) ) {
-			foreach ( $payload->aud as $audience ) {
-				if ( is_string( $audience ) && hash_equals( $expected_audience, $audience ) ) {
-					return true;
-				}
-			}
-		}
-
-		$this->error = __( 'AH JWT Auth: The JWT aud claim does not match the configured audience.', 'ah-jwt-auth' );
-		$this->log( 'AH JWT Auth: ERROR: The JWT aud claim does not match the configured audience.' );
-		return false;
-	}
-
-	/**
-	 * Validates the JWT issuer (iss) claim against the configured issuer value.
-	 *
-	 * If no issuer value has been configured, issuer validation is skipped.
-	 *
-	 * @param object $payload the payload from the JWT.
-	 * @return bool true if the issuer is valid or validation is disabled
-	 */
-	private function validate_issuer( $payload ) {
-		$expected_issuer = trim( get_option( 'ahjwtauth-issuer', '' ) );
-		if ( '' === $expected_issuer ) {
-			return true;
-		}
-
-		if ( ! isset( $payload->iss ) ) {
-			$this->error = __( 'AH JWT Auth: The JWT does not contain the required iss claim.', 'ah-jwt-auth' );
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-				// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				$this->log( 'AH JWT Auth: ERROR: The JWT does not contain the required iss claim.' );
-				// phpcs:enable
-			}
-			return false;
-		}
-
-		if ( hash_equals( $expected_issuer, $payload->iss ) ) {
-			return true;
-		}
-
-		$this->error = __( 'AH JWT Auth: The JWT iss claim does not match the configured issuer.', 'ah-jwt-auth' );
-		$this->log( 'AH JWT Auth: ERROR: The JWT iss claim does not match the configured issuer.' );
-		return false;
-	}
-
-	/**
-	 * Returns the key to verify the JWT
-	 *
-	 * Depending on the configuration of the plugin, this function will return
-	 * the static key used to verify the JWT or a key set retrieved from the
-	 * configured JSON Web Key Set (JWKS) URL
-	 *
-	 * A value of false is returned on error
-	 *
-	 * @return Key|CachedKeySet|false the key used for verifying the signature of the JWT
-	 */
-	private function get_key() {
-		$key = $this->key_source()->get_key();
-		if ( false === $key ) {
-			$this->error = __( 'AH JWT Auth: No JWT private secret or JWKS URL is configured', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: ERROR: No JWT private secret or JWKS URL is configured.' );
-		}
-
-		return $key;
+		return $result;
 	}
 
 	/**

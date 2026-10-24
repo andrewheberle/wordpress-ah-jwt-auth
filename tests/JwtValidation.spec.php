@@ -1,29 +1,23 @@
 <?php
 /**
- * Audience validation specs.
+ * Token verifier specs.
  *
  * @package AhJwtAuth
  */
 
 declare(strict_types=1);
 
-use AhJwtAuth\AhJwtAuthSignIn;
-use Firebase\JWT\CachedKeySet;
+use AhJwtAuth\AhJwtAuthStaticKeySource;
+use AhJwtAuth\AhJwtAuthTokenVerifier;
+use AhJwtAuth\AhJwtAuthVerificationFailure;
 use Firebase\JWT\JWT;
 
-function verify_token_for_test( $configured_audience, $payload, $configured_key = 'a-test-secret-at-least-256-bits-long', $signing_key = null, $algorithm = 'HS256' ) {
-	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-audience'] = $configured_audience;
-	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-private-secret'] = $configured_key;
-	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-jwks-url'] = '';
+const TEST_SECRET = 'a-test-secret-at-least-256-bits-long';
 
-	$jwt = JWT::encode( $payload, null === $signing_key ? $configured_key : $signing_key, $algorithm );
+function verify_token_for_test( $payload, $audience = '', $issuer = '' ) {
+	$verifier = new AhJwtAuthTokenVerifier( new AhJwtAuthStaticKeySource( TEST_SECRET ), $audience, $issuer );
 
-	$reflection = new ReflectionClass( AhJwtAuthSignIn::class );
-	$sign_in = $reflection->newInstanceWithoutConstructor();
-	$method = $reflection->getMethod( 'verify_token' );
-	$method->setAccessible( true );
-
-	return $method->invoke( $sign_in, $jwt );
+	return $verifier->verify( JWT::encode( $payload, TEST_SECRET, 'HS256' ) );
 }
 
 function rsa_key_pair_for_test() {
@@ -42,249 +36,207 @@ function rsa_key_pair_for_test() {
 	);
 }
 
-function get_key_for_test( $jwks_url ) {
-	$GLOBALS['ahjwtauth_test_options']['ahjwtauth-jwks-url'] = $jwks_url;
-
-	$reflection = new ReflectionClass( AhJwtAuthSignIn::class );
-	$sign_in = $reflection->newInstanceWithoutConstructor();
-	$method = $reflection->getMethod( 'get_key' );
-	$method->setAccessible( true );
-
-	return $method->invoke( $sign_in );
+function expect_failure( $result, $code ) {
+	expect( $result )->toBeAnInstanceOf( AhJwtAuthVerificationFailure::class );
+	expect( $result->get_code() )->toBe( $code );
 }
 
 describe(
-	'AhJwtAuthSignIn JWKS key set',
+	'AhJwtAuthTokenVerifier key and signature',
 	function() {
-		beforeEach(
-			function() {
-				$GLOBALS['ahjwtauth_test_options'] = array();
-			}
-		);
-
-		it(
-			'creates a cached key set when a JWKS URL is configured',
-			function() {
-				$key_set = get_key_for_test( 'https://example.com/.well-known/jwks.json' );
-
-				expect( $key_set )->toBeAnInstanceOf( CachedKeySet::class );
-			}
-		);
-	}
-);
-
-describe(
-	'AhJwtAuthSignIn Basic JWT validation',
-	function() {
-		beforeEach(
-			function() {
-				$GLOBALS['ahjwtauth_test_options'] = array();
-			}
-		);
-	
 		it(
 			'decodes a minimal signed JWT',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-				);
+				$decoded = verify_token_for_test( array( 'email' => 'admin@example.com' ) );
 
-				$decoded = verify_token_for_test( '', $payload );
-
-				expect( $decoded )->not->toBe( false );
 				expect( $decoded->email )->toBe( 'admin@example.com' );
 			}
 		);
 
 		it(
-			'decodes a JWT with all full set of claims',
+			'decodes an RS256 JWT when the key source holds a PEM public key',
 			function() {
-				$iat = time() - 240;
-				$payload = array(
-					'iss' => 'example.com',
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-					'iat' => $iat,
-					'nbf' => $iat,
-					'exp' => $iat + 480,
-				);
+				$key_pair = rsa_key_pair_for_test();
+				$verifier = new AhJwtAuthTokenVerifier( new AhJwtAuthStaticKeySource( $key_pair['public'] ) );
 
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
+				$decoded = $verifier->verify( JWT::encode( array( 'email' => 'admin@example.com' ), $key_pair['private'], 'RS256' ) );
 
-				expect( $decoded )->not->toBe( false );
-				expect( $decoded->iss )->toBe( 'example.com' );
 				expect( $decoded->email )->toBe( 'admin@example.com' );
-				expect( $decoded->aud )->toBe( 'oauth-client-id' );
 			}
 		);
 
 		it(
-			'rejects an expired JWT',
+			'fails with no_key when the key source has no key configured',
 			function() {
-				$iat = time() - 240;
-				$payload = array(
-					'iss' => 'example.com',
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-					'iat' => $iat,
-					'nbf' => $iat,
-					'exp' => $iat + 120,
-				);
+				$verifier = new AhJwtAuthTokenVerifier( new AhJwtAuthStaticKeySource( '' ) );
 
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
-
-				expect( $decoded )->toBe( false );
+				expect_failure( $verifier->verify( JWT::encode( array(), TEST_SECRET, 'HS256' ) ), AhJwtAuthVerificationFailure::NO_KEY );
 			}
 		);
 
 		it(
-			'rejects a JWT issued in the future',
+			'fails with invalid_signature when the JWT is signed with the wrong secret',
 			function() {
-				$iat = time() + 240;
-				$payload = array(
-					'iss' => 'example.com',
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-					'iat' => $iat,
-					'nbf' => $iat,
-					'exp' => $iat + 120,
-				);
+				$verifier = new AhJwtAuthTokenVerifier( new AhJwtAuthStaticKeySource( TEST_SECRET ) );
+				$jwt      = JWT::encode( array( 'email' => 'admin@example.com' ), 'the-wrong-secret-at-least-256-bits-long', 'HS256' );
 
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
-
-				expect( $decoded )->toBe( false );
+				expect_failure( $verifier->verify( $jwt ), AhJwtAuthVerificationFailure::INVALID_SIGNATURE );
 			}
 		);
 
 		it(
-			'rejects a JWT that is not yet valid',
+			'fails with invalid_token when the value is not a JWT',
 			function() {
-				$iat = time() - 60;
-				$payload = array(
-					'iss' => 'example.com',
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-					'iat' => $iat,
-					'nbf' => $iat + 120,
-					'exp' => $iat + 480,
-				);
+				$verifier = new AhJwtAuthTokenVerifier( new AhJwtAuthStaticKeySource( TEST_SECRET ) );
 
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
-
-				expect( $decoded )->toBe( false );
+				expect_failure( $verifier->verify( 'Basic dXNlcjpwYXNz' ), AhJwtAuthVerificationFailure::INVALID_TOKEN );
 			}
 		);
 
 		it(
-			'accepts a JWT that is has the correct issuer',
+			'keeps the underlying error as the failure detail',
 			function() {
-				$GLOBALS['ahjwtauth_test_options']['ahjwtauth-issuer'] = 'example.com';
-				$iat = time() - 60;
-				$payload = array(
-					'iss' => 'example.com',
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-					'iat' => $iat,
-					'nbf' => $iat,
-					'exp' => $iat + 480,
-				);
+				$verifier = new AhJwtAuthTokenVerifier( new AhJwtAuthStaticKeySource( TEST_SECRET ) );
 
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
-
-				expect( $decoded )->not->toBe( false );
-				expect( $decoded->iss )->toBe( 'example.com' );
-				expect( $decoded->email )->toBe( 'admin@example.com' );
-				expect( $decoded->aud )->toBe( 'oauth-client-id' );
-			}
-		);
-
-		it(
-			'rejects a JWT that is has the incorrect issuer',
-			function() {
-				$GLOBALS['ahjwtauth_test_options']['ahjwtauth-issuer'] = 'example.org';
-				$iat = time() - 60;
-				$payload = array(
-					'iss' => 'example.com',
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-					'iat' => $iat,
-					'nbf' => $iat,
-					'exp' => $iat + 480,
-				);
-
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
-
-				expect( $decoded )->toBe( false );
+				expect( $verifier->verify( 'Basic dXNlcjpwYXNz' )->get_detail() )->toBe( 'Wrong number of segments' );
 			}
 		);
 	}
 );
 
 describe(
-	'AhJwtAuthSignIn JWT audience validation',
+	'AhJwtAuthTokenVerifier time claims',
 	function() {
-		beforeEach(
-			function() {
-				$GLOBALS['ahjwtauth_test_options'] = array();
-			}
-		);
-
 		it(
-			'decodes a signed JWT without checking aud when no audience is configured',
+			'decodes a JWT with a full set of claims',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
+				$iat     = time() - 240;
+				$decoded = verify_token_for_test(
+					array(
+						'iss'   => 'example.com',
+						'email' => 'admin@example.com',
+						'aud'   => 'oauth-client-id',
+						'iat'   => $iat,
+						'nbf'   => $iat,
+						'exp'   => $iat + 480,
+					),
+					'oauth-client-id',
+					'example.com'
 				);
 
-				$decoded = verify_token_for_test( '', $payload );
-
-				expect( $decoded )->not->toBe( false );
+				expect( $decoded->iss )->toBe( 'example.com' );
 				expect( $decoded->email )->toBe( 'admin@example.com' );
-			}
-		);
-
-		it(
-			'decodes a signed JWT with a matching string audience',
-			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-				);
-
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
-
-				expect( $decoded )->not->toBe( false );
 				expect( $decoded->aud )->toBe( 'oauth-client-id' );
 			}
 		);
 
 		it(
-			'decodes an RS256 JWT when the configured key value is a PEM public key',
+			'fails with expired for an expired JWT',
 			function() {
-				$key_pair = rsa_key_pair_for_test();
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
+				$iat = time() - 240;
+
+				expect_failure(
+					verify_token_for_test( array( 'iat' => $iat, 'nbf' => $iat, 'exp' => $iat + 120 ) ),
+					AhJwtAuthVerificationFailure::EXPIRED
 				);
-
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload, $key_pair['public'], $key_pair['private'], 'RS256' );
-
-				expect( $decoded )->not->toBe( false );
-				expect( $decoded->aud )->toBe( 'oauth-client-id' );
 			}
 		);
 
 		it(
-			'decodes a signed JWT with a matching audience in an array claim',
+			'fails with not_yet_valid for a JWT issued in the future',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => array( 'other-client-id', 'oauth-client-id' ),
+				$iat = time() + 240;
+
+				expect_failure(
+					verify_token_for_test( array( 'iat' => $iat, 'exp' => $iat + 120 ) ),
+					AhJwtAuthVerificationFailure::NOT_YET_VALID
 				);
+			}
+		);
 
-				$decoded = verify_token_for_test( 'oauth-client-id', $payload );
+		it(
+			'fails with not_yet_valid for a JWT used before its nbf claim',
+			function() {
+				$iat = time() - 60;
 
-				expect( $decoded )->not->toBe( false );
+				expect_failure(
+					verify_token_for_test( array( 'iat' => $iat, 'nbf' => $iat + 120, 'exp' => $iat + 480 ) ),
+					AhJwtAuthVerificationFailure::NOT_YET_VALID
+				);
+			}
+		);
+	}
+);
+
+describe(
+	'AhJwtAuthTokenVerifier issuer validation',
+	function() {
+		it(
+			'decodes a JWT without checking iss when no issuer is configured',
+			function() {
+				expect( verify_token_for_test( array( 'iss' => 'anything' ) )->iss )->toBe( 'anything' );
+			}
+		);
+
+		it(
+			'decodes a JWT with the configured issuer',
+			function() {
+				expect( verify_token_for_test( array( 'iss' => 'example.com' ), '', 'example.com' )->iss )->toBe( 'example.com' );
+			}
+		);
+
+		it(
+			'trims the configured issuer before validation',
+			function() {
+				expect( verify_token_for_test( array( 'iss' => 'example.com' ), '', ' example.com ' )->iss )->toBe( 'example.com' );
+			}
+		);
+
+		it(
+			'fails with missing_issuer when the configured issuer is missing from the payload',
+			function() {
+				expect_failure( verify_token_for_test( array(), '', 'example.com' ), AhJwtAuthVerificationFailure::MISSING_ISSUER );
+			}
+		);
+
+		it(
+			'fails with issuer_mismatch for a different issuer',
+			function() {
+				expect_failure( verify_token_for_test( array( 'iss' => 'example.com' ), '', 'example.org' ), AhJwtAuthVerificationFailure::ISSUER_MISMATCH );
+			}
+		);
+
+		it(
+			'fails with issuer_mismatch for a non-string iss claim',
+			function() {
+				expect_failure( verify_token_for_test( array( 'iss' => 12345 ), '', 'example.com' ), AhJwtAuthVerificationFailure::ISSUER_MISMATCH );
+			}
+		);
+	}
+);
+
+describe(
+	'AhJwtAuthTokenVerifier audience validation',
+	function() {
+		it(
+			'decodes a JWT without checking aud when no audience is configured',
+			function() {
+				expect( verify_token_for_test( array( 'email' => 'admin@example.com' ) )->email )->toBe( 'admin@example.com' );
+			}
+		);
+
+		it(
+			'decodes a JWT with a matching string audience',
+			function() {
+				expect( verify_token_for_test( array( 'aud' => 'oauth-client-id' ), 'oauth-client-id' )->aud )->toBe( 'oauth-client-id' );
+			}
+		);
+
+		it(
+			'decodes a JWT with a matching audience in an array claim',
+			function() {
+				$decoded = verify_token_for_test( array( 'aud' => array( 'other-client-id', 'oauth-client-id' ) ), 'oauth-client-id' );
+
 				expect( $decoded->aud )->toContain( 'oauth-client-id' );
 			}
 		);
@@ -292,87 +244,57 @@ describe(
 		it(
 			'trims the configured audience before validation',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => 'oauth-client-id',
-				);
-
-				$decoded = verify_token_for_test( ' oauth-client-id ', $payload );
-
-				expect( $decoded )->not->toBe( false );
-				expect( $decoded->aud )->toBe( 'oauth-client-id' );
+				expect( verify_token_for_test( array( 'aud' => 'oauth-client-id' ), ' oauth-client-id ' )->aud )->toBe( 'oauth-client-id' );
 			}
 		);
 
 		it(
-			'rejects a signed JWT when the configured audience is missing from the payload',
+			'fails with missing_audience when the configured audience is missing from the payload',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-				);
-
-				expect( verify_token_for_test( 'oauth-client-id', $payload ) )->toBe( false );
+				expect_failure( verify_token_for_test( array(), 'oauth-client-id' ), AhJwtAuthVerificationFailure::MISSING_AUDIENCE );
 			}
 		);
 
 		it(
-			'rejects a signed JWT with a mismatched string audience',
+			'fails with audience_mismatch for a different string audience',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => 'wrong-client-id',
-				);
-
-				expect( verify_token_for_test( 'oauth-client-id', $payload ) )->toBe( false );
+				expect_failure( verify_token_for_test( array( 'aud' => 'wrong-client-id' ), 'oauth-client-id' ), AhJwtAuthVerificationFailure::AUDIENCE_MISMATCH );
 			}
 		);
 
 		it(
-			'rejects a signed JWT with a mismatched array audience',
+			'fails with audience_mismatch when no array audience matches',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => array( 'wrong-client-id', 'other-client-id' ),
+				expect_failure(
+					verify_token_for_test( array( 'aud' => array( 'wrong-client-id', 'other-client-id' ) ), 'oauth-client-id' ),
+					AhJwtAuthVerificationFailure::AUDIENCE_MISMATCH
 				);
-
-				expect( verify_token_for_test( 'oauth-client-id', $payload ) )->toBe( false );
 			}
 		);
 
 		it(
-			'rejects a signed JWT with a non-string audience claim value',
+			'fails with audience_mismatch for a non-string aud claim',
 			function() {
-				$payload = array(
-					'email' => 'admin@example.com',
-					'aud' => 12345,
-				);
-
-				expect( verify_token_for_test( 'oauth-client-id', $payload ) )->toBe( false );
+				expect_failure( verify_token_for_test( array( 'aud' => 12345 ), 'oauth-client-id' ), AhJwtAuthVerificationFailure::AUDIENCE_MISMATCH );
 			}
 		);
+	}
+);
 
+describe(
+	'AhJwtAuthVerificationFailure',
+	function() {
 		it(
-			'rejects a JWT signed with the wrong secret before audience validation can pass',
+			'has an admin message for every failure code',
 			function() {
-				$GLOBALS['ahjwtauth_test_options']['ahjwtauth-audience'] = 'oauth-client-id';
-				$GLOBALS['ahjwtauth_test_options']['ahjwtauth-private-secret'] = 'the-expected-secret-at-least-256-bits-long';
-				$GLOBALS['ahjwtauth_test_options']['ahjwtauth-jwks-url'] = '';
+				$codes    = ( new ReflectionClass( AhJwtAuthVerificationFailure::class ) )->getConstants();
+				$fallback = ( new AhJwtAuthVerificationFailure( AhJwtAuthVerificationFailure::UNEXPECTED ) )->get_message();
 
-				$jwt = JWT::encode(
-					array(
-						'email' => 'admin@example.com',
-						'aud' => 'oauth-client-id',
-					),
-					'the-wrong-secret-at-least-256-bits-long',
-					'HS256'
-				);
-
-				$reflection = new ReflectionClass( AhJwtAuthSignIn::class );
-				$sign_in = $reflection->newInstanceWithoutConstructor();
-				$method = $reflection->getMethod( 'verify_token' );
-				$method->setAccessible( true );
-
-				expect( $method->invoke( $sign_in, $jwt ) )->toBe( false );
+				foreach ( $codes as $code ) {
+					if ( AhJwtAuthVerificationFailure::UNEXPECTED !== $code ) {
+						expect( ( new AhJwtAuthVerificationFailure( $code ) )->get_message() )->not->toBe( $fallback );
+					}
+				}
 			}
 		);
 	}
