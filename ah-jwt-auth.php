@@ -40,6 +40,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/interface-ahjwtauthkeysource.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthstatickeysource.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthjwkskeysource.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsignin.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthadmin.php';
 

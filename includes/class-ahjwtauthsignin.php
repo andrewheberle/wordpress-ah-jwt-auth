@@ -22,15 +22,9 @@ use Art4\Requests\Psr\HttpClient;
 use Firebase\JWT\CachedKeySet;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
-use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
-use ItalyStrap\Cache\Pool;
-use ItalyStrap\Cache\Expiration;
-use ItalyStrap\Storage\BinaryCacheDecorator;
-use ItalyStrap\Storage\Transient;
-use Nyholm\Psr7\Factory\Psr17Factory;
 
 /**
  *
@@ -387,78 +381,35 @@ class AhJwtAuthSignIn {
 	 * Returns the key to verify the JWT
 	 *
 	 * Depending on the configuration of the plugin, this function will return
-	 * the static key used to verify the JWT or will retrieve a JSON Web Key Set (JWKS)
-	 * from the configured URL
+	 * the static key used to verify the JWT or a key set retrieved from the
+	 * configured JSON Web Key Set (JWKS) URL
 	 *
 	 * A value of false is returned on error
 	 *
-	 * @return Key the key used for verifying the signature of the JWT
+	 * @return Key|CachedKeySet|false the key used for verifying the signature of the JWT
 	 */
 	private function get_key() {
-		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
-		if ( '' !== $jwks_url ) {
-			$http_client  = new HttpClient();
-			$http_factory = new Psr17Factory();
-			$driver       = new BinaryCacheDecorator( new Transient() );
-			$expiration   = new Expiration();
-			$cache_pool   = new Pool( $driver, $expiration );
-
-			$key_set = new CachedKeySet(
-				$jwks_url,
-				$http_client,
-				$http_factory,
-				$cache_pool,
-				WEEK_IN_SECONDS,
-				true
-			);
-
-			return $key_set;
+		$key = $this->key_source()->get_key();
+		if ( false === $key ) {
+			$this->error = __( 'AH JWT Auth: No JWT private secret or JWKS URL is configured', 'ah-jwt-auth' );
+			$this->log( 'AH JWT Auth: ERROR: No JWT private secret or JWKS URL is configured.' );
 		}
 
-		return new Key( get_option( 'ahjwtauth-private-secret' ), $this->get_alg() );
+		return $key;
 	}
 
 	/**
-	 * Returns the key algorithm as RS256 if a public key or JWKS is used or HS256
-	 * if a secret is used.
+	 * Returns the configured source of the key used to verify the JWT
 	 *
-	 * @return string key algorithm
+	 * @return AhJwtAuthKeySource the configured key source
 	 */
-	private function get_alg() {
-		$jwks_url = get_option( 'ahjwtauth-jwks-url' );
+	private function key_source() {
+		$jwks_url = get_option( 'ahjwtauth-jwks-url', '' );
 		if ( '' !== $jwks_url ) {
-			return 'RS256';
+			return new AhJwtAuthJwksKeySource( $jwks_url, new HttpClient() );
 		}
 
-		if ( $this->is_public_key( get_option( 'ahjwtauth-private-secret' ) ) ) {
-			return 'RS256';
-		}
-
-		return 'HS256';
-	}
-
-	/**
-	 * Determines whether the configured key material is a public key.
-	 *
-	 * @param string $key_material the configured key material.
-	 * @return bool true if the key material is a public key
-	 */
-	private function is_public_key( $key_material ) {
-		if ( ! is_string( $key_material ) || '' === trim( $key_material ) ) {
-			return false;
-		}
-
-		if ( function_exists( 'openssl_pkey_get_public' ) ) {
-			try {
-				$public_key = openssl_pkey_get_public( $key_material );
-				return false !== $public_key;
-			} catch ( Exception $e ) {
-				$this->log( 'AH JWT Auth: ERROR: There was an exception with openssl_pkey_get_public: ' . $e->getMessage() );
-				return false;
-			}
-		}
-
-		return 1 === preg_match( '/-----BEGIN (PUBLIC KEY|RSA PUBLIC KEY|CERTIFICATE)-----/', $key_material );
+		return new AhJwtAuthStaticKeySource( get_option( 'ahjwtauth-private-secret' ) );
 	}
 
 	/**
