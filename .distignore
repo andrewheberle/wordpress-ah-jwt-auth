@@ -1,12 +1,15 @@
-.distignore
-.git
-.github
-.gitignore
-.wordpress-org
-AGENTS.md
-docs
-GLOSSARY.md
-kahlan-config.php
-README.md
-tests
-renovate.json
+# rsync exclude patterns for the WordPress.org release.
+# A leading / matches only at the repo root, so vendor/ keeps its own files.
+
+# Hidden files are development config, so they are excluded at any depth,
+# including inside vendor/.
+.*
+
+/.wordpress-org
+/AGENTS.md
+/docs
+/GLOSSARY.md
+/kahlan-config.php
+/README.md
+/tests
+/renovate.json
