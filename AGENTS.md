@@ -1,3 +1,11 @@
+## Before opening a PR
+
+Done when `composer test` passes in a clean checkout (`git worktree add`): a stale local `vendor/` can mask failures that CI's fresh checkout hits. Plugin code outside `tests/` must also meet the `WordPress` coding standard; CI checks it with WPCS, and `phpcs` is not installed locally.
+
+## Dependencies
+
+`vendor/` is gitignored. The deploy workflow builds it with `composer install --no-dev`, so everything in `require` ships to WordPress.org; test and build tools go in `require-dev`.
+
 ## Agent skills
 
 ### Issue tracker
