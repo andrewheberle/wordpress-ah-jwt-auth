@@ -7,11 +7,6 @@
 
 declare(strict_types=1);
 
-$vendor_dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ahjwtauth-test-vendor';
-putenv( 'COMPOSER_VENDOR_DIR=' . $vendor_dir );
-$_ENV['COMPOSER_VENDOR_DIR'] = $vendor_dir;
-$_SERVER['COMPOSER_VENDOR_DIR'] = $vendor_dir;
-
 function ahjwtauth_run_command( $command ) {
 	$descriptor_spec = array(
 		0 => STDIN,
@@ -33,7 +28,7 @@ function ahjwtauth_run_command( $command ) {
 
 ahjwtauth_run_command( 'composer install --no-interaction --no-progress' );
 
-$kahlan = $vendor_dir . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'kahlan';
+$kahlan = dirname( __DIR__ ) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'kahlan';
 if ( 'Windows' === PHP_OS_FAMILY ) {
 	$kahlan .= '.bat';
 }
