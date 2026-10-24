@@ -51,14 +51,12 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthauthenticato
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsignin.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthadmin.php';
 
-register_deactivation_hook(
-	__FILE__,
-	function () {
-		$timestamp = wp_next_scheduled( 'ahjwtauth_fetch_jwks' );
-		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, 'ahjwtauth_fetch_jwks' );
-		}
-	}
-);
+// One-off upgrade steps, recorded in an upgrade level that is independent of the plugin version.
+if ( (int) get_option( 'ahjwtauth-upgrade-level', 0 ) < 1 ) {
+	// Remove the JWKS fetch cron job scheduled by versions before 2.3.0.
+	wp_clear_scheduled_hook( 'ahjwtauth_fetch_jwks' );
+	update_option( 'ahjwtauth-upgrade-level', 1 );
+}
 
 new AhJwtAuthSignIn( new AhJwtAuthSettings() );
+new AhJwtAuthAdmin();
