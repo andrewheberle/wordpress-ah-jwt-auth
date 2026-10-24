@@ -3,8 +3,8 @@ Contributors: andrewheberle
 Donate link: https://paypal.me/andrewheberle
 Tags: jwt, sso, login, auth, authentication
 Requires at least: 4.7
-Tested up to: 7.0.0
-Stable tag: 2.4.0
+Tested up to: 7.1
+Stable tag: 2.5.0
 Requires PHP: 8.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -91,6 +91,12 @@ created from JWTs are kept, as they belong to the site.
    Cloudflare Access for SSO via JWT
 
 == Changelog ==
+
+= 2.5.0 =
+* Remove plugin data on uninstall
+* Only remove the legacy cron job once
+* Fix bugs in user creation and sign-in
+* Refactor to improve testability
 
 = 2.4.0 =
 * Fix fatal error with JWKS caching
