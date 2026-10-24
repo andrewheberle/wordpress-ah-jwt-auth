@@ -65,4 +65,5 @@ require_once __DIR__ . '/../includes/class-ahjwtauthstatickeysource.php';
 require_once __DIR__ . '/../includes/class-ahjwtauthjwkskeysource.php';
 require_once __DIR__ . '/../includes/class-ahjwtauthverificationfailure.php';
 require_once __DIR__ . '/../includes/class-ahjwtauthtokenverifier.php';
+require_once __DIR__ . '/../includes/class-ahjwtauthsettings.php';
 require_once __DIR__ . '/../includes/class-ahjwtauthsignin.php';

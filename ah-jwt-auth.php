@@ -45,6 +45,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthstatickeysou
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthjwkskeysource.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthverificationfailure.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthtokenverifier.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsettings.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsignin.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthadmin.php';
 
@@ -58,4 +59,4 @@ register_deactivation_hook(
 	}
 );
 
-new AhJwtAuthSignIn();
+new AhJwtAuthSignIn( new AhJwtAuthSettings() );

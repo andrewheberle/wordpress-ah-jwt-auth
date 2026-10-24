@@ -14,8 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Art4\Requests\Psr\HttpClient;
-
 /**
  *
  * This class handles all the sign-in logic that extracts and verifies the JWT
@@ -31,6 +29,13 @@ class AhJwtAuthSignIn {
 	 * @var AhJwtAuthAdmin
 	 */
 	private $ah_jwt_auth_admin;
+
+	/**
+	 * Plugin settings.
+	 *
+	 * @var AhJwtAuthSettings
+	 */
+	private $settings;
 
 	/**
 	 * Error message to display in admin notices.
@@ -49,9 +54,12 @@ class AhJwtAuthSignIn {
 	/**
 	 * Sets up the class ready for use
 	 *
+	 * @param AhJwtAuthSettings $settings the plugin settings.
 	 * @return void
 	 */
-	public function __construct() {
+	public function __construct( AhJwtAuthSettings $settings ) {
+		$this->settings = $settings;
+
 		// Set up admin class.
 		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
 
@@ -87,7 +95,7 @@ class AhJwtAuthSignIn {
 			return;
 		}
 
-		$fail_closed = '1' === get_option( 'ahjwtauth-fail-closed', '0' );
+		$fail_closed = $this->settings->fail_closed();
 
 		// get jwt.
 		$jwt = $this->get_token();
@@ -138,7 +146,7 @@ class AhJwtAuthSignIn {
 		$user = get_user_by( 'email', $email );
 
 		if ( ! $user ) {
-			if ( '1' === get_option( 'ahjwtauth-disable-user-creation', '0' ) ) {
+			if ( $this->settings->user_creation_disabled() ) {
 				// Check if the administrator explicitly enabled Fail-Closed enforcement.
 				if ( $fail_closed ) {
 					wp_die(
@@ -159,7 +167,7 @@ class AhJwtAuthSignIn {
 
 			// set role on creation to configured default if not included in jwt.
 			if ( ! isset( $payload->role ) ) {
-				$user->set_role( get_option( 'ahjwtauth-user-role', 'subscriber' ) );
+				$user->set_role( $this->settings->default_user_role() );
 			}
 		}
 
@@ -227,7 +235,7 @@ class AhJwtAuthSignIn {
 	private function get_token() {
 		$request_headers    = getallheaders();
 		$normalized_headers = array_change_key_case( $request_headers, CASE_LOWER );
-		$target_header      = strtolower( get_option( 'ahjwtauth-jwt-header', 'Authorization' ) );
+		$target_header      = strtolower( $this->settings->jwt_header() );
 
 		if ( ! isset( $normalized_headers[ $target_header ] ) ) {
 			$this->warning = __( 'AH JWT Auth: The expected JWT was not found. Please double check your reverse proxy configuration.', 'ah-jwt-auth' );
@@ -257,9 +265,9 @@ class AhJwtAuthSignIn {
 	 */
 	private function verify_token( $jwt ) {
 		$verifier = new AhJwtAuthTokenVerifier(
-			$this->key_source(),
-			get_option( 'ahjwtauth-audience', '' ),
-			get_option( 'ahjwtauth-issuer', '' )
+			$this->settings->key_source(),
+			$this->settings->audience(),
+			$this->settings->issuer()
 		);
 
 		$result = $verifier->verify( $jwt );
@@ -271,20 +279,6 @@ class AhJwtAuthSignIn {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Returns the configured source of the key used to verify the JWT
-	 *
-	 * @return AhJwtAuthKeySource the configured key source
-	 */
-	private function key_source() {
-		$jwks_url = get_option( 'ahjwtauth-jwks-url', '' );
-		if ( '' !== $jwks_url ) {
-			return new AhJwtAuthJwksKeySource( $jwks_url, new HttpClient() );
-		}
-
-		return new AhJwtAuthStaticKeySource( get_option( 'ahjwtauth-private-secret' ) );
 	}
 
 	/**
