@@ -38,6 +38,13 @@ class AhJwtAuthSignIn {
 	private $settings;
 
 	/**
+	 * Resolves the user for the request's JWT.
+	 *
+	 * @var AhJwtAuthAuthenticator
+	 */
+	private $authenticator;
+
+	/**
 	 * Error message to display in admin notices.
 	 *
 	 * @var string
@@ -58,7 +65,8 @@ class AhJwtAuthSignIn {
 	 * @return void
 	 */
 	public function __construct( AhJwtAuthSettings $settings ) {
-		$this->settings = $settings;
+		$this->settings      = $settings;
+		$this->authenticator = new AhJwtAuthAuthenticator( $settings );
 
 		// Set up admin class.
 		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
@@ -95,94 +103,16 @@ class AhJwtAuthSignIn {
 			return;
 		}
 
-		$fail_closed = $this->settings->fail_closed();
-
-		// get jwt.
-		$jwt = $this->get_token();
-		if ( false === $jwt ) {
-			// If Fail-Closed is enabled, enforce the token requirement strictly.
-			if ( $fail_closed ) {
-				wp_die(
-					esc_html__( 'Access Denied: This site requires a valid JWT.', 'ah-jwt-auth' ),
-					esc_html__( 'JWT Authentication Required', 'ah-jwt-auth' ),
-					array( 'response' => 401 )
-				);
-			}
-
+		$user = $this->authenticator->authenticate( getallheaders() );
+		if ( $user instanceof AhJwtAuthSignInFailure ) {
+			$this->handle_failure( $user );
 			return;
-		}
-
-		// verify JWT and grab payload.
-		$payload = $this->verify_token( $jwt );
-		if ( false === $payload ) {
-			// Check if the administrator explicitly enabled Fail-Closed enforcement.
-			if ( $fail_closed ) {
-				wp_die(
-					esc_html__( 'Authentication failed: The provided JWT is invalid or expired.', 'ah-jwt-auth' ),
-					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ),
-					array( 'response' => 401 )
-				);
-			}
-
-			return;
-		}
-
-		// If we cannot extract the user's email from header this is an error.
-		if ( ! isset( $payload->email ) ) {
-			// Check if the administrator explicitly enabled Fail-Closed enforcement.
-			if ( $fail_closed ) {
-				wp_die(
-					esc_html__( 'Authentication failed: The provided JWT did not include an email claim.', 'ah-jwt-auth' ),
-					esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ),
-					array( 'response' => 401 )
-				);
-			}
-
-			$this->error = __( 'AH JWT Auth expects email attribute to identify user, but it does not exist in the JWT. Please check your reverse proxy configuration', 'ah-jwt-auth' );
-			return;
-		}
-		$email = $payload->email;
-
-		$user = get_user_by( 'email', $email );
-
-		if ( ! $user ) {
-			if ( $this->settings->user_creation_disabled() ) {
-				// Check if the administrator explicitly enabled Fail-Closed enforcement.
-				if ( $fail_closed ) {
-					wp_die(
-						esc_html__( 'Authentication failed: No account exists for this JWT.', 'ah-jwt-auth' ),
-						esc_html__( 'JWT Authentication Error', 'ah-jwt-auth' ),
-						array( 'response' => 401 )
-					);
-				}
-
-				$this->error = __( 'AH JWT Auth found a valid JWT, but the user does not exist and automatic user creation is disabled.', 'ah-jwt-auth' );
-				$this->log( 'AH JWT Auth: ERROR: valid JWT found, but user does not exist and automatic user creation is disabled.' );
-				return;
-			}
-
-			$random_password = wp_generate_password( 64, false );
-			$user_id         = wp_create_user( $email, $random_password, $email );
-			$user            = get_user_by( 'id', $user_id );
-
-			// set role on creation to configured default if not included in jwt.
-			if ( ! isset( $payload->role ) ) {
-				$user->set_role( $this->settings->default_user_role() );
-			}
-		}
-
-		// If we can extract the user's role from the JWT and it is valid then set the role, otherwise leave as-is.
-		if ( isset( $payload->role ) ) {
-			$role = strtolower( $payload->role );
-			if ( array_key_exists( $role, wp_roles()->get_names() ) ) {
-				$user->set_role( $role );
-			}
 		}
 
 		wp_clear_auth_cookie();
 		wp_set_current_user( $user->ID );
 		wp_set_auth_cookie( $user->ID );
-		do_action( 'wp_login', $user->login, $user );
+		do_action( 'wp_login', $user->user_login, $user );
 
 		// redirect after login.
 		$redirect_to = current_user_can( 'manage_options' ) ? admin_url() : home_url();
@@ -221,64 +151,33 @@ class AhJwtAuthSignIn {
 		}
 	}
 
-
-
 	/**
-	 * Retrieves the JWT
+	 * Reports a failed sign-in
 	 *
-	 * The JWT is retrieved from the configured HTTP request header
+	 * The failure is logged and shown in an admin notice. If Fail-Closed is
+	 * enabled the request is also blocked.
 	 *
-	 * A value of false is returned on error
-	 *
-	 * @return string the payload from the JWT
+	 * @param AhJwtAuthSignInFailure $failure why sign-in failed.
+	 * @return void
 	 */
-	private function get_token() {
-		$request_headers    = getallheaders();
-		$normalized_headers = array_change_key_case( $request_headers, CASE_LOWER );
-		$target_header      = strtolower( $this->settings->jwt_header() );
+	private function handle_failure( AhJwtAuthSignInFailure $failure ) {
+		$level  = $failure->is_warning() ? 'WARNING' : 'ERROR';
+		$detail = '' === $failure->get_detail() ? '' : ': ' . $failure->get_detail();
+		$this->log( 'AH JWT Auth: ' . $level . ': ' . $failure->get_message() . $detail );
 
-		if ( ! isset( $normalized_headers[ $target_header ] ) ) {
-			$this->warning = __( 'AH JWT Auth: The expected JWT was not found. Please double check your reverse proxy configuration.', 'ah-jwt-auth' );
-			$this->log( 'AH JWT Auth: WARNING: The expected JWT was not found.' );
-			return false;
+		if ( $failure->is_warning() ) {
+			$this->warning = 'AH JWT Auth: ' . $failure->get_message();
+		} else {
+			$this->error = 'AH JWT Auth: ' . $failure->get_message();
 		}
 
-		$raw_header_value = wp_unslash( $normalized_headers[ $target_header ] );
-		$array            = explode( ' ', $raw_header_value );
-		if ( 'Bearer' === $array[0] ) {
-			array_shift( $array );
+		if ( $this->settings->fail_closed() ) {
+			wp_die(
+				esc_html( $failure->get_visitor_message() ),
+				esc_html( $failure->get_visitor_title() ),
+				array( 'response' => 401 )
+			);
 		}
-
-		return implode( ' ', $array );
-	}
-
-	/**
-	 * Verifies the JWT
-	 *
-	 * The provided JWT is verified using the configured key source and its
-	 * claims are checked against the configured audience and issuer
-	 *
-	 * A value of false is returned on error
-	 *
-	 * @param string $jwt the JWT to verify.
-	 * @return object|false the payload from the JWT
-	 */
-	private function verify_token( $jwt ) {
-		$verifier = new AhJwtAuthTokenVerifier(
-			$this->settings->key_source(),
-			$this->settings->audience(),
-			$this->settings->issuer()
-		);
-
-		$result = $verifier->verify( $jwt );
-		if ( $result instanceof AhJwtAuthVerificationFailure ) {
-			$this->error = 'AH JWT Auth: ' . $result->get_message();
-			$detail      = '' === $result->get_detail() ? '' : ': ' . $result->get_detail();
-			$this->log( 'AH JWT Auth: ERROR: ' . $result->get_message() . $detail );
-			return false;
-		}
-
-		return $result;
 	}
 
 	/**
