@@ -93,16 +93,10 @@ created from JWTs are kept, as they belong to the site.
 == Changelog ==
 
 = 2.5.0 =
-* Release automation
-* Anchor .distignore patterns to the repo root
 * Remove plugin data on uninstall
-* Wire the plugin in its main file and remove the legacy cron job once
-* Decide the sign-in outcome before acting on it
-* Read plugin options through AhJwtAuthSettings
-* Extract JWT verification into AhJwtAuthTokenVerifier
-* Move key selection behind a key source seam
-* Build vendor in CI and test before deploying
-* Set up agent skills
+* Only remove the legacy cron job once
+* Fix bugs in user creation and sign-in
+* Refactor to improve testability
 
 = 2.4.0 =
 * Fix fatal error with JWKS caching
