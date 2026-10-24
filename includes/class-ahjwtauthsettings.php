@@ -46,6 +46,22 @@ class AhJwtAuthSettings {
 		self::FAIL_CLOSED           => '0',
 	);
 
+	// The level of one-off upgrade steps already run; not a setting.
+	const UPGRADE_LEVEL = 'ahjwtauth-upgrade-level';
+
+	// Every option the plugin stores, all deleted on uninstall.
+	const PLUGIN_DATA = array(
+		self::PRIVATE_SECRET,
+		self::JWKS_URL,
+		self::JWT_HEADER,
+		self::AUDIENCE,
+		self::ISSUER,
+		self::USER_ROLE,
+		self::DISABLE_USER_CREATION,
+		self::FAIL_CLOSED,
+		self::UPGRADE_LEVEL,
+	);
+
 	/**
 	 * Returns the shared secret or PEM public key used to verify the JWT
 	 *
