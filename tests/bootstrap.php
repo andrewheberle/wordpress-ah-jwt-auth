@@ -53,10 +53,7 @@ if ( ! function_exists( 'delete_transient' ) ) {
 	}
 }
 
-$composer_vendor_dir = getenv( 'COMPOSER_VENDOR_DIR' );
-$autoload = false !== $composer_vendor_dir
-	? $composer_vendor_dir . '/autoload.php'
-	: __DIR__ . '/../vendor/autoload.php';
+$autoload = __DIR__ . '/../vendor/autoload.php';
 
 if ( file_exists( $autoload ) ) {
 	require_once $autoload;
