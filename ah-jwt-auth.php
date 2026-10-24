@@ -46,6 +46,8 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthjwkskeysourc
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthverificationfailure.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthtokenverifier.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsettings.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsigninfailure.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthauthenticator.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsignin.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthadmin.php';
 
