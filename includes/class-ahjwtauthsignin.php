@@ -24,13 +24,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class AhJwtAuthSignIn {
 	/**
-	 * Admin handler.
-	 *
-	 * @var AhJwtAuthAdmin
-	 */
-	private $ah_jwt_auth_admin;
-
-	/**
 	 * Plugin settings.
 	 *
 	 * @var AhJwtAuthSettings
@@ -68,17 +61,8 @@ class AhJwtAuthSignIn {
 		$this->settings      = $settings;
 		$this->authenticator = new AhJwtAuthAuthenticator( $settings );
 
-		// Set up admin class.
-		$this->ah_jwt_auth_admin = new AhJwtAuthAdmin();
-
 		add_action( 'admin_notices', array( $this, 'ahjwtauth_admin_notice' ) );
 		add_action( 'init', array( $this, 'ahjwtauth_log_user_in' ) );
-
-		// Remove legacy cron job if it exists from a previous version.
-		$timestamp = wp_next_scheduled( 'ahjwtauth_fetch_jwks' );
-		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, 'ahjwtauth_fetch_jwks' );
-		}
 	}
 
 	/**
