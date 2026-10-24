@@ -76,6 +76,15 @@ and are valid.
 
 Currently only the HS256 and RS256 algorithms are supported.
 
+= What happens to my data if I deactivate or delete the plugin? =
+
+Deactivating the plugin leaves its settings in place, so reactivating it picks
+up where you left off.
+
+Deleting the plugin removes all of its settings, including the JWT private
+secret, from every site in a multisite network. User accounts the plugin
+created from JWTs are kept, as they belong to the site.
+
 == Screenshots ==
 
 1. This example shows a configuration with a WordPress install behind

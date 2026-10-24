@@ -52,10 +52,10 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthsignin.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-ahjwtauthadmin.php';
 
 // One-off upgrade steps, recorded in an upgrade level that is independent of the plugin version.
-if ( (int) get_option( 'ahjwtauth-upgrade-level', 0 ) < 1 ) {
+if ( (int) get_option( AhJwtAuthSettings::UPGRADE_LEVEL, 0 ) < 1 ) {
 	// Remove the JWKS fetch cron job scheduled by versions before 2.3.0.
 	wp_clear_scheduled_hook( 'ahjwtauth_fetch_jwks' );
-	update_option( 'ahjwtauth-upgrade-level', 1 );
+	update_option( AhJwtAuthSettings::UPGRADE_LEVEL, 1 );
 }
 
 new AhJwtAuthSignIn( new AhJwtAuthSettings() );

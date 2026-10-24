@@ -149,6 +149,52 @@ if ( ! function_exists( 'wp_unslash' ) ) {
 	}
 }
 
+// Options and multisite stand-ins used by the uninstall spec.
+$GLOBALS['ahjwtauth_test_blog_id']         = 1;
+$GLOBALS['ahjwtauth_test_sites']           = null;
+$GLOBALS['ahjwtauth_test_get_sites_args']  = null;
+$GLOBALS['ahjwtauth_test_deleted_options'] = array();
+
+if ( ! function_exists( 'delete_option' ) ) {
+	function delete_option( $option_name ) {
+		$GLOBALS['ahjwtauth_test_deleted_options'][] = array( $GLOBALS['ahjwtauth_test_blog_id'], $option_name );
+		unset( $GLOBALS['ahjwtauth_test_options'][ $option_name ] );
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'is_multisite' ) ) {
+	function is_multisite() {
+		return null !== $GLOBALS['ahjwtauth_test_sites'];
+	}
+}
+
+if ( ! function_exists( 'get_sites' ) ) {
+	function get_sites( $args = array() ) {
+		$GLOBALS['ahjwtauth_test_get_sites_args'] = $args;
+
+		return $GLOBALS['ahjwtauth_test_sites'];
+	}
+}
+
+if ( ! function_exists( 'switch_to_blog' ) ) {
+	function switch_to_blog( $blog_id ) {
+		$GLOBALS['ahjwtauth_test_blog_stack'][] = $GLOBALS['ahjwtauth_test_blog_id'];
+		$GLOBALS['ahjwtauth_test_blog_id']      = $blog_id;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'restore_current_blog' ) ) {
+	function restore_current_blog() {
+		$GLOBALS['ahjwtauth_test_blog_id'] = array_pop( $GLOBALS['ahjwtauth_test_blog_stack'] );
+
+		return true;
+	}
+}
+
 $autoload = __DIR__ . '/../vendor/autoload.php';
 
 if ( file_exists( $autoload ) ) {
