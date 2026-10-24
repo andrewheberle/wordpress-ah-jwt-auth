@@ -3,6 +3,8 @@
 .github
 .gitignore
 .wordpress-org
+AGENTS.md
+docs
 kahlan-config.php
 README.md
 tests
