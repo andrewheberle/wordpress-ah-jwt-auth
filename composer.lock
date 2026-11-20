@@ -8,20 +8,20 @@
     "packages": [
         {
             "name": "art4/requests-psr18-adapter",
-            "version": "1.4.1",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Art4/WP-Requests-PSR18-Adapter.git",
-                "reference": "b2d5d3b4d035bbac57520e3b6c10e3f2765e7353"
+                "reference": "846878c64cd8f0c12d58e49af7b358275c903a92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Art4/WP-Requests-PSR18-Adapter/zipball/b2d5d3b4d035bbac57520e3b6c10e3f2765e7353",
-                "reference": "b2d5d3b4d035bbac57520e3b6c10e3f2765e7353",
+                "url": "https://api.github.com/repos/Art4/WP-Requests-PSR18-Adapter/zipball/846878c64cd8f0c12d58e49af7b358275c903a92",
+                "reference": "846878c64cd8f0c12d58e49af7b358275c903a92",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+                "php": "^7.4 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
                 "psr/http-client": "^1.0",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.1 || ^2.0",
@@ -31,10 +31,13 @@
                 "psr/http-client-implementation": "^1.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.4",
-                "phpstan/phpstan": "^1.12 || ^2.1",
-                "phpstan/phpstan-strict-rules": "^1.6 || ^2.0",
-                "phpunit/phpunit": "^8.5 || ^9.6 || ^11.5 || ^12.2",
+                "behat/behat": "^3.15 || ^4.0",
+                "friendsofphp/php-cs-fixer": "^3.65",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^9.6 || ^10.5 || ^11.5 || ^12.5 || ^13.0",
+                "rector/rector": "^2.3",
                 "yoast/phpunit-polyfills": "^4.0"
             },
             "type": "library",
@@ -73,9 +76,10 @@
             ],
             "support": {
                 "issues": "https://github.com/Art4/WP-Requests-PSR18-Adapter/issues",
-                "source": "https://github.com/Art4/WP-Requests-PSR18-Adapter/tree/1.4.1"
+                "source": "https://github.com/Art4/WP-Requests-PSR18-Adapter/tree/1.5.0"
             },
-            "time": "2026-05-09T09:26:29+00:00"
+            "time": "2026-11-20T19:21:37+00:00",
+            "published-time": "2026-11-20T19:22:33+00:00"
         },
         {
             "name": "fig/cache-util",
@@ -644,7 +648,8 @@
             "support": {
                 "source": "https://github.com/php-fig/http-client"
             },
-            "time": "2023-09-23T14:17:50+00:00"
+            "time": "2023-09-23T14:17:50+00:00",
+            "published-time": "2023-09-23T14:18:12+00:00"
         },
         {
             "name": "psr/http-factory",
@@ -699,7 +704,8 @@
             "support": {
                 "source": "https://github.com/php-fig/http-factory"
             },
-            "time": "2024-04-15T12:06:14+00:00"
+            "time": "2024-04-15T12:06:14+00:00",
+            "published-time": "2024-05-10T07:32:19+00:00"
         },
         {
             "name": "psr/http-message",
@@ -752,7 +758,8 @@
             "support": {
                 "source": "https://github.com/php-fig/http-message/tree/2.0"
             },
-            "time": "2023-04-04T09:54:51+00:00"
+            "time": "2023-04-04T09:54:51+00:00",
+            "published-time": "2023-04-04T09:55:35+00:00"
         },
         {
             "name": "psr/simple-cache",
@@ -874,5 +881,5 @@
     "prefer-lowest": false,
     "platform": {},
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }
